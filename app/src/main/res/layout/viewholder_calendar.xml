@@ -4,7 +4,7 @@
     android:layout_height="75dp"
     android:orientation="vertical"
     android:layout_margin="8dp"
-    android:background="@drawable/bg_calendar_view">
+    android:background="@drawable/bg_time_available">
 
     <TextView
         android:layout_margin="5dp"

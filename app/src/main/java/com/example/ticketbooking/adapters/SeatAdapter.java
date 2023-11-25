@@ -38,8 +38,10 @@ public class SeatAdapter extends RecyclerView.Adapter<SeatAdapter.ViewHolder> {
         Seat seat = seats.get(position);
         if (seat.isBooked()) {
             holder.seatButton.setBackgroundResource(R.drawable.bg_seat_booked);
-        } else if (seat.isAvailable() && !seat.isBooked()) {
+        } else if (seat.isAvailable()) {
             holder.seatButton.setBackgroundResource(R.drawable.bg_seat_available);
+        } else if (!seat.isAvailable()) {
+            holder.seatButton.setBackgroundResource(R.drawable.bg_seat_your_selection);
         }
     }
 

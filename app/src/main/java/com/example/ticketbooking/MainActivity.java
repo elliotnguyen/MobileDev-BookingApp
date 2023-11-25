@@ -8,16 +8,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.ticketbooking.Model.Movie;
+import com.example.ticketbooking.Model.Purchase;
+import com.example.ticketbooking.Model.User;
 import com.example.ticketbooking.adapters.ImageAdapter;
 import com.example.ticketbooking.adapters.MovieAdapter;
 import com.example.ticketbooking.adapters.RecyclerViewClickInterface;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -27,16 +33,46 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Movie> movies;
     RecyclerView movieRecyclerView;
     RecyclerView.Adapter movieAdapter;
-
+    FirebaseAuth auth = FirebaseAuth.getInstance();
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference();
+    ImageView profileImage;
+    TextView viewAll;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        DatabaseReference userRef = myRef.child("users").child(auth.getCurrentUser().getUid());
+        profileImage = findViewById(R.id.navbar_profile);
+        profileImage.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, PurchaseHistoryActivity.class);
+            startActivity(intent);
+        });
+
         getMovieData();
+        getUserData(userRef);
+
+        viewAll = findViewById(R.id.activity_main_view_all);
+        viewAll.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, ViewAllActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    private void getUserData(DatabaseReference userRef) {
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Picasso.get().load(snapshot.child("profilePic").getValue().toString()).into(profileImage);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
     private void getMovieData() {
         myRef.child("movies").addValueEventListener(new ValueEventListener() {

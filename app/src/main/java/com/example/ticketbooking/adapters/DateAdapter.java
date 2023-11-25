@@ -1,14 +1,18 @@
 package com.example.ticketbooking.adapters;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.ticketbooking.Model.DateModel;
 import com.example.ticketbooking.R;
 
 import java.text.DateFormat;
@@ -17,11 +21,11 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
-    ArrayList<String> dates;
+    ArrayList<DateModel> dates;
     RecyclerViewClickInterface recyclerViewClickInterface;
     Context context;
 
-    public DateAdapter(ArrayList<String> dates, RecyclerViewClickInterface recyclerViewClickInterface) {
+    public DateAdapter(ArrayList<DateModel> dates, RecyclerViewClickInterface recyclerViewClickInterface) {
         this.dates = dates;
         this.recyclerViewClickInterface = recyclerViewClickInterface;
     }
@@ -36,12 +40,24 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull DateAdapter.ViewHolder holder, int position) {
-        String date = dates.get(position);
+        DateModel dateModel = dates.get(position);
+        String date = dateModel.getDate();
         String[] parts = date.split(", ");
 
         if (parts.length >= 2) {
             holder.day.setText(parts[0]);
             holder.date.setText(parts[1]);
+        }
+
+        if (dateModel.isSelected()) {
+            holder.day.setTypeface(holder.day.getTypeface(), Typeface.BOLD);
+            holder.day.setTextColor(context.getResources().getColor(R.color.blue));
+
+            holder.date.setTypeface(holder.date.getTypeface(), Typeface.BOLD);
+            holder.date.setTextColor(context.getResources().getColor(R.color.blue));
+        } else {
+            holder.day.setTextColor(context.getResources().getColor(R.color.black));
+            holder.date.setTextColor(context.getResources().getColor(R.color.black));
         }
     }
 
@@ -53,6 +69,7 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView date;
         TextView day;
+        //AppCompatButton date;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 

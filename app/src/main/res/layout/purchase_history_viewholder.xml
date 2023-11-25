@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:orientation="vertical">
+<androidx.cardview.widget.CardView
+    android:layout_margin="10dp"
+    android:layout_width="match_parent"
+    android:layout_height="180dp"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="20dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp">
+        <TextView
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:id="@+id/ticket_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Your ticket"
+            android:textSize="18sp"
+            android:layout_margin="10dp"
+            android:drawablePadding="10dp"
+            android:drawableStart="@drawable/ticket_shape"/>
+
+        <TextView
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ticket_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Movie name"
+            android:textSize="25sp"
+            android:layout_margin="10dp"
+            android:layout_marginTop="70dp"
+            android:id="@+id/ticket_movie_name"/>
+
+        <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/ticket_movie_name">
+
+            <TextView
+                android:id="@+id/ticket_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:text="Friday, 26"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ticket_movie_name" />
+
+            <TextView
+                android:id="@+id/ticket_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:text="10:00 AM"
+                android:textSize="12sp"
+                app:layout_constraintStart_toEndOf="@id/ticket_date"
+                app:layout_constraintTop_toBottomOf="@id/ticket_title" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+
+            <TextView
+                android:id="@+id/ticket_cinema"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:text="CGV Hoang Van Thu"
+                android:textSize="15sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ticket_title" />
+
+            <TextView
+                android:id="@+id/ticket_seat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:text="Seat: 15,16"
+                android:textSize="12sp"
+                app:layout_constraintStart_toEndOf="@id/ticket_date"
+                app:layout_constraintTop_toBottomOf="@id/ticket_movie_name" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/ticket_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:paddingHorizontal="10dp"
+            android:background="@drawable/bg_ticket_purchase_done"
+            android:text="e-tickets have been released."
+            android:layout_marginTop="5dp"
+            android:textSize="12sp"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/linearLayout3"
+            app:layout_constraintBottom_toBottomOf="parent
+"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
+</LinearLayout>

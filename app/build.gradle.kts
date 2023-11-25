@@ -40,6 +40,9 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.squareup.picasso:picasso:2.8")
+
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.5.0")
