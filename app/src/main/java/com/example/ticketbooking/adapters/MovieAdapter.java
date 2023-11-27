@@ -3,6 +3,8 @@ package com.example.ticketbooking.adapters;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,9 +16,11 @@ import com.example.ticketbooking.Model.Movie;
 import com.example.ticketbooking.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder>{
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> implements Filterable {
     ArrayList<Movie> movies;
+    ArrayList<Movie> filteredMovies;
     RecyclerViewClickInterface recyclerViewClickInterface;
     Context context;
 
@@ -24,6 +28,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder>{
         this.movies = movies;
         this.recyclerViewClickInterface = recyclerViewClickInterface;
         this.context = context;
+    }
+
+    public void setMovies(ArrayList<Movie> movies) {
+        this.movies = movies;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -53,6 +62,37 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder>{
         return movies.size();
     }
 
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                String searchString = constraint.toString().toLowerCase().trim();
+                FilterResults results = new FilterResults();
+
+                if (searchString.isEmpty()) {
+                    results.values = movies;
+                } else {
+                    ArrayList<Movie> filteredList = new ArrayList<>();
+                    for (Movie movie : movies) {
+                        if (movie.getTitle().toLowerCase().contains(searchString)) {
+                            filteredList.add(movie);
+                        }
+                    }
+                    results.values = filteredList;
+                }
+
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                movies = (ArrayList<Movie>) filterResults.values;
+                notifyDataSetChanged();
+            }
+        };
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView movieName;
         TextView movieDuration;
@@ -80,4 +120,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder>{
             });
         }
     }
+
+
 }

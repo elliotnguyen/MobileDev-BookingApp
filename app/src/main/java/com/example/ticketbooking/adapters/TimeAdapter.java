@@ -19,14 +19,9 @@ import java.util.ArrayList;
 
 public class TimeAdapter extends RecyclerView.Adapter<TimeAdapter.ViewHolder> {
     RecyclerViewClickInterface recyclerViewClickInterface;
-    //Cinema cinema;
     ArrayList<TimeModel> times;
     Context context;
 
-    /*public TimeAdapter(Cinema cinema, RecyclerViewClickInterface recyclerViewClickInterface) {
-        this.recyclerViewClickInterface = recyclerViewClickInterface;
-        this.cinema = cinema;
-    }*/
     public TimeAdapter(ArrayList<TimeModel> times, RecyclerViewClickInterface recyclerViewClickInterface) {
         this.recyclerViewClickInterface = recyclerViewClickInterface;
         this.times = times;
@@ -42,36 +37,28 @@ public class TimeAdapter extends RecyclerView.Adapter<TimeAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull TimeAdapter.ViewHolder holder, int position) {
-        //TimeModel time = cinema.getTime().get(position);
         TimeModel time = times.get(position);
-        if (time.getTime().equals("")) {
+        holder.time.setText(TimeModel.showTimeWithFormat(String.valueOf(position)));
+        if (time.isBlocked()) {
             holder.time.setBackgroundResource(R.drawable.bg_time_blocked);
-            String realtime = String.valueOf(position + 9) + ":30";
-            holder.time.setText(realtime);
             holder.time.setEnabled(false);
         } else {
-            //holder.time.setBackgroundResource(R.drawable.bg_time_available);
-            String realtime = String.valueOf(Integer.parseInt(time.getTime()) + 9) + ":30";
-            holder.time.setText(realtime);
-        }
-
-        if (time.isSelected()) {
-            holder.time.setTypeface(holder.time.getTypeface(), Typeface.BOLD);
-            holder.time.setTextColor(context.getResources().getColor(R.color.blue));
-        } else {
-            holder.time.setTextColor(context.getResources().getColor(R.color.black));
-            //holder.time.setBackgroundResource(R.drawable.bg_time_available);
+            if (time.isSelected()) {
+                holder.time.setTypeface(holder.time.getTypeface(), Typeface.BOLD);
+                holder.time.setTextColor(context.getResources().getColor(R.color.blue));
+            } else {
+                holder.time.setTypeface(holder.time.getTypeface(), Typeface.NORMAL);
+                holder.time.setTextColor(context.getResources().getColor(R.color.black));
+            }
         }
     }
 
     @Override
     public int getItemCount() {
-        //return cinema.getTime().size();
         return times.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        //Button time;
         TextView time;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

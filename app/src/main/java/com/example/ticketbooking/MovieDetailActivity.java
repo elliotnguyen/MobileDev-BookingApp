@@ -66,7 +66,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         String movieId = getIntent().getStringExtra("movieId");
 
         getMovieData(movieId);
-        BookingRepository.getInstance().getCurrentPurchase().setMovieId(movieId);
+        BookingRepository.getInstance().setMovieId(movieId);
 
         handleDateRecylerView();
 
@@ -128,7 +128,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         cinemaAdapter = new CinemaAdapter(cinemas, new RecyclerViewClickInterface() {
             @Override
             public void onItemClick(int position) {
-                cinemaAdapter.notifyItemChanged(position);
+                //cinemaAdapter.notifyItemChanged(position);
             }
 
             @Override
@@ -160,13 +160,9 @@ public class MovieDetailActivity extends AppCompatActivity {
                 dateChosenPosition = position;
 
                 DateModel date = dates.get(position);
-                String dateStr = date.getDate().split(", ")[1];
-                String day = dateStr.split(" ")[0];
-                int Day = Integer.parseInt(day) - 2;
-                Log.v("Day", String.valueOf(Day));
 
-                BookingRepository.getInstance().setDate(String.valueOf(Day));
-                getCinemaData(String.valueOf(Day));
+                BookingRepository.getInstance().setDate(date.getDate());
+                getCinemaData(DateModel.getDay(date.getDate()));
             }
 
             @Override
@@ -211,18 +207,19 @@ public class MovieDetailActivity extends AppCompatActivity {
         bookButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (BookingRepository.getInstance().getCurrentPurchase().getDate() == null) {
+                if (BookingRepository.getInstance().getDate().isEmpty()) {
                     ProgressHelper.dismissDialog();
                     Toast.makeText(MovieDetailActivity.this, "Please choose the date", Toast.LENGTH_SHORT).show();
-                } else if (BookingRepository.getInstance().getCurrentPurchase().getCinemaId() == null || BookingRepository.getInstance().getCurrentPurchase().getTime() == null) {
+                } else if (BookingRepository.getInstance().getCinemaId().isEmpty() || BookingRepository.getInstance().getTime().isEmpty()) {
                     ProgressHelper.dismissDialog();
                     Toast.makeText(MovieDetailActivity.this, "Please choose the cinema and time", Toast.LENGTH_SHORT).show();
                 } else {
-                    String purchaseId = movie.getId() + BookingRepository.getInstance().getCurrentPurchase().getCinemaId() + BookingRepository.getInstance().getCurrentPurchase().getDate() + BookingRepository.getInstance().getCurrentPurchase().getTime();
-                    BookingRepository.getInstance().getCurrentPurchase().setStatus("Inprogress");
-                    BookingRepository.getInstance().getCurrentPurchase().setMovieName(movie.getTitle());
-                    String cinemaId = BookingRepository.getInstance().getCurrentPurchase().getCinemaId();
-                    BookingRepository.getInstance().getCurrentPurchase().setCinemaName(cinemas.get(Integer.parseInt(cinemaId)).getName());
+                    String cinemaId = BookingRepository.getInstance().getCinemaId();
+                    String purchaseId = movie.getId() + BookingRepository.getInstance().getCinemaId() + DateModel.getDay(BookingRepository.getInstance().getDate()) + BookingRepository.getInstance().getTime();
+                    BookingRepository.getInstance().setStatus("inprogress");
+                    BookingRepository.getInstance().setMovieName(movie.getTitle());
+                    //String cinemaId = BookingRepository.getInstance().getCurrentPurchase().getCinemaId();
+                    BookingRepository.getInstance().setCinemaName(cinemas.get(Integer.parseInt(cinemaId)).getName());
                     userPurchaseRef.child(purchaseId).setValue(BookingRepository.getInstance().getCurrentPurchase()).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -232,8 +229,9 @@ public class MovieDetailActivity extends AppCompatActivity {
                                 Intent intent = new Intent(MovieDetailActivity.this, BookingActivity.class);
                                 intent.putExtra("movieName", movie.getTitle());
                                 intent.putExtra("movieBackdrop", movie.getBackdropPath());
+                                intent.putExtra("continuePurchase", true);
                                 startActivity(intent);
-                                finish();
+                                //finish();
                             } else {
                                 Toast.makeText(MovieDetailActivity.this, "Error in booking", Toast.LENGTH_SHORT).show();
                             }
@@ -249,20 +247,8 @@ public class MovieDetailActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                userPurchaseRef.setValue(BookingRepository.getInstance().getCurrentPurchase()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        ProgressHelper.dismissDialog();
-                        if (task.isSuccessful()) {
-                            ProgressHelper.showDialog(MovieDetailActivity.this, "Continue...");
-                            Intent intent = new Intent(MovieDetailActivity.this, ViewAllActivity.class);
-                            startActivity(intent);
-                            finish();
-                        } else {
-                            Toast.makeText(MovieDetailActivity.this, "Error in booking", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+                Intent intent = new Intent(MovieDetailActivity.this, ViewAllActivity.class);
+                startActivity(intent);
             }
         });
 

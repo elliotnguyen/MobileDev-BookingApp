@@ -26,7 +26,9 @@ public class Purchase {
         this.status = status;
     }
 
-    public Purchase() {}
+    public Purchase() {
+        //this.seat = new ArrayList<>();
+    }
 
     public Purchase(String movieId, String cinemaId, String date, String time, ArrayList<Integer> seat, String status) {
         this.movieId = movieId;
@@ -107,6 +109,7 @@ public class Purchase {
     public void addSeat(int seat) {
         if (this.seat == null) {
             this.seat = new ArrayList<>();
+            this.seat.add(seat);
         } else {
             this.seat.add(seat);
         }
@@ -153,7 +156,8 @@ public class Purchase {
         String date = (String) dataSnapshot.child("date").getValue();
         String time = (String) dataSnapshot.child("time").getValue();
         String seatStr = (String) dataSnapshot.child("seat").getValue();
-        ArrayList<Integer> seat = new ArrayList<>();
+        ArrayList<Integer> seat = Seat.convertStringSeatToInteger(seatStr);
+        /*ArrayList<Integer> seat = new ArrayList<>();
         if (seatStr != null) {
             String seatStrArr[] = seatStr.split(",");
             for (int i = 0; i < seatStrArr.length; i++) {
@@ -161,7 +165,7 @@ public class Purchase {
                 int idx = Integer.parseInt(seatStrArr[i]);
                 seat.add(idx);
             }
-        } else seat.add(1);
+        } else seat.add(1);*/
         /*String seatStrArr[] = seatStr.split(",");
         for (int i = 0; i < seatStrArr.length; i++) {
             seatStrArr[i] = seatStrArr[i].replaceAll("\"","");

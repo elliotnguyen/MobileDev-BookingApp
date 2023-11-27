@@ -38,7 +38,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     @Override
     public void onBindViewHolder(@NonNull ImageAdapter.ImageViewHolder holder, int position) {
        String url = movies.get(position).getPosterPath();
-       Glide.with(context).load("https://image.tmdb.org/t/p/w500" + url).placeholder(R.drawable.bg_image_main_activity).override(720, 1000).into(holder.imageView);
+       Glide.with(context).load("https://image.tmdb.org/t/p/w500" + url).placeholder(R.drawable.bg_image_main_activity).override(800, 1080).into(holder.imageView);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         public ImageViewHolder(@NonNull View parent) {
             super(parent);
 
-            imageView = parent.findViewById(R.id.image_main_activity);
+            imageView = parent.findViewById(R.id.movie_hottest_image);
             parent.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

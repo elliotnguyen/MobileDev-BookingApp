@@ -8,9 +8,10 @@ import java.util.HashMap;
 
 public class DateUtils {
     public static String getCurrentDate() {
-        DateFormat dateFormat = new SimpleDateFormat("EEE, d MMM, yyyy");
+        /*DateFormat dateFormat = new SimpleDateFormat("EEE, d MMM, yyyy");
         Date date = new Date();
-        return dateFormat.format(date);
+        return dateFormat.format(date);*/
+        return "Fri, 24 Nov, 2023";
     }
     public static String getNextDay(String currentDate) {
         return getOffsetDate(currentDate, 1);

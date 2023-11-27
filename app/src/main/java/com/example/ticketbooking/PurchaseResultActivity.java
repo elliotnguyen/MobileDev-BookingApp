@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.ticketbooking.Model.TimeModel;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -41,11 +42,15 @@ public class PurchaseResultActivity extends AppCompatActivity {
         String Date = getIntent().getStringExtra("date");
         date.setText(Date);
         String Time = getIntent().getStringExtra("time");
-        time.setText(Time);
+        time.setText(TimeModel.showTimeWithFormat(Time));
         String Seat = getIntent().getStringExtra("seat");
         seat.setText(Seat);
 
         generateQRCode(MovieName, Date, Time, Seat);
+
+        ImageView backBtn = findViewById(R.id.activity_purchase_result_close_btn);
+        backBtn.setOnClickListener(view -> finish());
+
     }
 
     private void generateQRCode(String movieName, String date, String time, String seat) {

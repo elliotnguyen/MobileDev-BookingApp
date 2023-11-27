@@ -16,8 +16,11 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.ticketbooking.Dialog.ProgressHelper;
+import com.example.ticketbooking.Dialog.VerifyPurchaseHelper;
+import com.example.ticketbooking.Model.DateModel;
 import com.example.ticketbooking.Model.Movie;
 import com.example.ticketbooking.Model.Seat;
+import com.example.ticketbooking.Model.TimeModel;
 import com.example.ticketbooking.Repository.BookingRepository;
 import com.example.ticketbooking.adapters.RecyclerViewClickInterface;
 import com.example.ticketbooking.adapters.SeatAdapter;
@@ -32,7 +35,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class BookingActivity extends AppCompatActivity {
+public class BookingActivity extends AppCompatActivity implements VerifyPurchaseHelper.HandlerDialogListener {
     RecyclerView seatRecyclerView;
     RecyclerView.Adapter seatAdapter;
     ArrayList<Seat> seats;
@@ -49,6 +52,7 @@ public class BookingActivity extends AppCompatActivity {
     TextView totalPrice;
     String bookedSeat;
     String CinemaName;
+    String MovieName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,37 +64,80 @@ public class BookingActivity extends AppCompatActivity {
             seats.add(new Seat(i, false, true));
         }
 
-        cinemaId = BookingRepository.getInstance().getCurrentPurchase().getCinemaId();
-        movieId = BookingRepository.getInstance().getCurrentPurchase().getMovieId();
-        date = BookingRepository.getInstance().getCurrentPurchase().getDate();
-        time = BookingRepository.getInstance().getCurrentPurchase().getTime();
+        defineCurrentPurchase();
 
-        String purchaseId = movieId + cinemaId + date + time;
+        String purchaseId = movieId + cinemaId + DateModel.getDay(date) + time;
         userPurchaseRef =  myRef.child("users").child(mAuth.getCurrentUser().getUid()).child("purchases").child(purchaseId);
 
         cinemaRef = myRef.child("cinema").child(cinemaId);
         handlePurchaseInfo();
 
-        totalTicket = findViewById(R.id.activity_booking_ticket);
-        totalPrice = findViewById(R.id.activity_booking_total_payable);
         getSeatData();
 
+        totalTicket = findViewById(R.id.activity_booking_ticket);
+        totalPrice = findViewById(R.id.activity_booking_total_payable);
         handlePurchaseFinish();
+
+        ImageView backBtn = findViewById(R.id.activity_booking_backward_btn);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final String userChosenSeats = Seat.convertIntegerSeatToString(BookingRepository.getInstance().getSeat());
+
+                userPurchaseRef.child("seat").setValue(userChosenSeats).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                        } else {
+                            Toast.makeText(BookingActivity.this, "Server excess rating...", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                finish();
+            }
+        });
+    }
+
+    private void defineCurrentPurchase() {
+        if (getIntent().hasExtra("retryPurchase")) {
+            BookingRepository.getInstance().resetCurrentPurchase();
+            BookingRepository.getInstance().setCinemaId(getIntent().getStringExtra("cinemaId"));
+            BookingRepository.getInstance().setMovieId(getIntent().getStringExtra("movieId"));
+            BookingRepository.getInstance().setDate(getIntent().getStringExtra("date"));
+            BookingRepository.getInstance().setTime(getIntent().getStringExtra("time"));
+            BookingRepository.getInstance().setSeat(Seat.convertStringSeatToInteger(getIntent().getStringExtra("seat")));
+            BookingRepository.getInstance().setCinemaName(getIntent().getStringExtra("cinemaName"));
+            BookingRepository.getInstance().setMovieName(getIntent().getStringExtra("movieName"));
+        }
+
+        cinemaId = BookingRepository.getInstance().getCinemaId();
+        movieId = BookingRepository.getInstance().getMovieId();
+        date = BookingRepository.getInstance().getDate();
+        time = BookingRepository.getInstance().getTime();
+        CinemaName = BookingRepository.getInstance().getCinemaName();
+        MovieName = BookingRepository.getInstance().getMovieName();
     }
 
     private void getSeatData() {
-        cinemaRef = cinemaRef.child(movieId).child(date);
+        cinemaRef = cinemaRef.child(movieId).child(DateModel.getDay(date));
         cinemaRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                //String bookedSeat = snapshot.child("booked").getValue(String.class);
                 bookedSeat = snapshot.child(time).getValue(String.class);
-                //Log.v("TAG", bookedSeat);
-                String[] seatArray = bookedSeat.split(",");
-                for (String seat : seatArray) {
-                    seat = seat.replaceAll("\"","");
-                    int idx = Integer.parseInt(seat);
-                    seats.get(idx).setBooked(true);
+                ArrayList<Integer> bookedSeatArray = Seat.convertStringSeatToInteger(bookedSeat);
+                for (int seat : bookedSeatArray) {
+                    seats.get(seat).setBooked(true);
+                    seats.get(seat).setAvailable(false);
+                }
+
+                ArrayList<Integer> userChosenSeat = BookingRepository.getInstance().getSeat();
+                if (userChosenSeat != null) {
+                    for (int seat : userChosenSeat) {
+                        seats.get(seat).setAvailable(false);
+                    }
+                    int total = userChosenSeat.size();
+                    totalTicket.setText(String.valueOf(total));
+                    totalPrice.setText(String.valueOf(total * 100));
                 }
 
                 handleSeatRecyclerView();
@@ -116,9 +163,11 @@ public class BookingActivity extends AppCompatActivity {
                         BookingRepository.getInstance().addSeat(seat.getIdx());
                     } else {
                         seat.setAvailable(true);
-                        BookingRepository.getInstance().removeSeat(seat.getIdx());
+                        if (BookingRepository.getInstance().getSeat().size() > 0) {
+                            BookingRepository.getInstance().removeSeat(seat.getIdx());
+                        }
                     }
-                    int total = BookingRepository.getInstance().getCurrentPurchase().getSeat().size() + 1;
+                    int total = BookingRepository.getInstance().getSeat().size();
                     totalTicket.setText(String.valueOf(total));
                     totalPrice.setText(String.valueOf(total * 100));
                     seatAdapter.notifyItemChanged(position);
@@ -134,16 +183,32 @@ public class BookingActivity extends AppCompatActivity {
     }
 
     private void handlePurchaseInfo() {
+        ImageView movieBackdrop = findViewById(R.id.activity_booking_backdrop);
         TextView movieName = findViewById(R.id.card_booking_item_name);
-        movieName.setText(getIntent().getStringExtra("movieName"));
+        myRef.child("movies").child(movieId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String movieNameStr = snapshot.child("title").getValue(String.class);
+                movieName.setText(movieNameStr);
+
+                String backdrop = snapshot.child("backdrop_path").getValue(String.class);
+                Glide.with(BookingActivity.this).load("https://image.tmdb.org/t/p/w500" + backdrop).placeholder(R.drawable.movie_detail_background_image).override(1250,600).fitCenter().into(movieBackdrop);
+
+                MovieName = movieNameStr;
+                BookingRepository.getInstance().setMovieName(movieNameStr);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        movieName.setText(MovieName);
 
         Button date = findViewById(R.id.activity_booking_booking_date);
-        date.setText(BookingRepository.getInstance().getCurrentPurchase().getDate());
+        date.setText(DateModel.getDayOfWeek(BookingRepository.getInstance().getDate()));
 
         Button time = findViewById(R.id.activity_booking_booking_time);
-        String showTime = BookingRepository.getInstance().getCurrentPurchase().getTime();
-        String realtime = String.valueOf(Integer.parseInt(showTime) + 9) + ":30";
-        time.setText(realtime);
+        time.setText(TimeModel.showTimeWithFormat(BookingRepository.getInstance().getTime()));
 
         Button cinema = findViewById(R.id.activity_booking_booking_revenue);
         cinemaRef.addValueEventListener(new ValueEventListener() {
@@ -158,10 +223,10 @@ public class BookingActivity extends AppCompatActivity {
 
             }
         });
-
-        ImageView movieBackdrop = findViewById(R.id.activity_booking_backdrop);
-        String backdrop = getIntent().getStringExtra("movieBackdrop");
-        Glide.with(this).load("https://image.tmdb.org/t/p/w500" + backdrop).placeholder(R.drawable.movie_detail_background_image).override(1250,600).fitCenter().into(movieBackdrop);
+        if (getIntent().hasExtra("movieBackdrop")) {
+            String backdrop = getIntent().getStringExtra("movieBackdrop");
+            Glide.with(this).load("https://image.tmdb.org/t/p/w500" + backdrop).placeholder(R.drawable.movie_detail_background_image).override(1250,600).fitCenter().into(movieBackdrop);
+        }
     }
 
     private void handlePurchaseFinish() {
@@ -169,55 +234,13 @@ public class BookingActivity extends AppCompatActivity {
         finishBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                userPurchaseRef.child("status").setValue("booked").addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                        } else {
-                            Toast.makeText(BookingActivity.this, "Error in handling your purchase", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
-
-                String newSeats = "";
-                int size = BookingRepository.getInstance().getCurrentPurchase().getSeat().size();
-                for (int i = 0; i <  size; i++) {
-                    newSeats = newSeats + BookingRepository.getInstance().getCurrentPurchase().getSeat().get(i);
-                    if (i != size - 1) {
-                        newSeats += ",";
-                    }
+                if (BookingRepository.getInstance().getSeat().size() == 0) {
+                    Toast.makeText(BookingActivity.this, "Please choose at least one seat", Toast.LENGTH_SHORT).show();
+                    return;
+                } else {
+                    VerifyPurchaseHelper verifyPurchaseHelper = new VerifyPurchaseHelper();
+                    verifyPurchaseHelper.show(getSupportFragmentManager(), "verify purchase");
                 }
-
-                userPurchaseRef.child("seat").setValue(newSeats).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                        } else {
-                            Toast.makeText(BookingActivity.this, "Server excess rating...", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-                final String seatForQR = newSeats;
-                cinemaRef.child(time).setValue(bookedSeat + "," + newSeats).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            ProgressHelper.showDialog(BookingActivity.this, "Loading...");
-                            Intent intent = new Intent(BookingActivity.this, PurchaseResultActivity.class);
-                            intent.putExtra("movieName", getIntent().getStringExtra("movieName"));
-                            intent.putExtra("cinemaName", CinemaName);
-                            //intent.putExtra("cinemaName", getIntent().getStringExtra("cinemaName"));
-                            intent.putExtra("date", BookingRepository.getInstance().getCurrentPurchase().getDate());
-                            intent.putExtra("time", BookingRepository.getInstance().getCurrentPurchase().getTime());
-                            intent.putExtra("seat", seatForQR);
-                            startActivity(intent);
-                            finish();
-                        } else {
-                            Toast.makeText(BookingActivity.this, "Error in booking", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
             }
         });
     }
@@ -232,5 +255,48 @@ public class BookingActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         ProgressHelper.dismissDialog();
+    }
+
+    @Override
+    public void handle() {
+        userPurchaseRef.child("status").setValue("booked").addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                } else {
+                    Toast.makeText(BookingActivity.this, "Error in handling your purchase", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        final String userChosenSeats = Seat.convertIntegerSeatToString(BookingRepository.getInstance().getSeat());
+
+        userPurchaseRef.child("seat").setValue(userChosenSeats).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                } else {
+                    Toast.makeText(BookingActivity.this, "Server excess rating...", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        cinemaRef.child(time).setValue(bookedSeat + "," + userChosenSeats).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    ProgressHelper.showDialog(BookingActivity.this, "Loading...");
+                    Intent intent = new Intent(BookingActivity.this, PurchaseResultActivity.class);
+                    intent.putExtra("movieName", MovieName);
+                    intent.putExtra("cinemaName", CinemaName);
+                    intent.putExtra("date", BookingRepository.getInstance().getDate());
+                    intent.putExtra("time", BookingRepository.getInstance().getTime());
+                    intent.putExtra("seat", userChosenSeats);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(BookingActivity.this, "Error in booking", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }

@@ -36,12 +36,12 @@ public class Cinema {
     }
 
     public void setTime(ArrayList<String> time) {
-        //this.time = new ArrayList<>();
         for (int i = 0; i < 12; i++) {
-            this.time.add(new TimeModel("", false));
+            this.time.add(new TimeModel("", false, true));
         }
+
         for (String t : time) {
-            this.time.set(Integer.parseInt(t), new TimeModel(t, false));
+            this.time.set(Integer.parseInt(t), new TimeModel(t, false, false));
         }
     }
 

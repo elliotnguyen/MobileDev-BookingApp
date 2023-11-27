@@ -2,12 +2,14 @@ package com.example.ticketbooking;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -26,7 +28,8 @@ import java.util.ArrayList;
 
 public class ViewAllActivity extends AppCompatActivity {
     RecyclerView viewAllMovieRecyclerView;
-    RecyclerView.Adapter movieAdapter;
+    //RecyclerView.Adapter movieAdapter;
+    MovieAdapter movieAdapter;
     ArrayList<Movie> movies;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference();
@@ -39,10 +42,34 @@ public class ViewAllActivity extends AppCompatActivity {
 
         DatabaseReference userRef = myRef.child("users").child(mAuth.getCurrentUser().getUid());
         profileImage = findViewById(R.id.navbar_profile_view_all);
+        profileImage.setOnClickListener(view -> {
+            Intent intent = new Intent(ViewAllActivity.this, PurchaseHistoryActivity.class);
+            startActivity(intent);
+        });
 
 
         getMovieData();
         getUserData(userRef);
+
+        handleSearchBar();
+    }
+
+    private void handleSearchBar() {
+        SearchView searchView = findViewById(R.id.search_view_all);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) { // when user press search button
+                movieAdapter.getFilter().filter(query);
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) { // when user type
+                if (TextUtils.isEmpty(newText)) {
+                    movieAdapter.setMovies(movies);
+                }
+                return true;
+            }
+        });
     }
 
 

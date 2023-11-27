@@ -5,10 +5,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.ticketbooking.Model.Purchase;
+import com.example.ticketbooking.Model.Seat;
+import com.example.ticketbooking.Repository.BookingRepository;
 import com.example.ticketbooking.adapters.PurchaseHistoryAdapter;
 import com.example.ticketbooking.adapters.RecyclerViewClickInterface;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,6 +43,14 @@ public class PurchaseHistoryActivity extends AppCompatActivity {
         userRef = myRef.child("users").child(mAuth.getCurrentUser().getUid());
 
         getPurchasesData(userRef);
+
+        ImageView backBtn = findViewById(R.id.activity_booking_backward_btn);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
+                finish();
+           }
+       });
     }
 
     private void getPurchasesData(DatabaseReference userRef) {
@@ -64,7 +77,34 @@ public class PurchaseHistoryActivity extends AppCompatActivity {
         purchaseHistoryAdapter = new PurchaseHistoryAdapter(purchases, new RecyclerViewClickInterface() {
             @Override
             public void onItemClick(int position) {
-
+                Purchase purchase = purchases.get(position);
+                if (purchase.getStatus().equals("booked")) {
+                    Intent intent = new Intent(PurchaseHistoryActivity.this, PurchaseResultActivity.class);
+                    intent.putExtra("movieName", purchase.getMovieName());
+                    intent.putExtra("cinemaName", purchase.getCinemaName());
+                    intent.putExtra("date", purchase.getDate());
+                    intent.putExtra("time", purchase.getTime());
+                    String newSeats = "";
+                    int size = purchase.getSeat().size();
+                    for (int i = 0; i <  size; i++) {
+                        newSeats = newSeats + purchase.getSeat().get(i);
+                        if (i != size - 1) {
+                            newSeats += ",";
+                        }
+                    }
+                    intent.putExtra("seat", newSeats);
+                    startActivity(intent);
+                }
+                else if (purchase.getStatus().equals("inprogress")) {
+                    Intent intent = new Intent(PurchaseHistoryActivity.this, BookingActivity.class);
+                    intent.putExtra("movieId", purchase.getMovieId());
+                    intent.putExtra("cinemaId", purchase.getCinemaId());
+                    intent.putExtra("date", purchase.getDate());
+                    intent.putExtra("time", purchase.getTime());
+                    intent.putExtra("seat", Seat.convertIntegerSeatToString(purchase.getSeat()));
+                    intent.putExtra("retryPurchase", true);
+                    startActivity(intent);
+                }
             }
 
             @Override

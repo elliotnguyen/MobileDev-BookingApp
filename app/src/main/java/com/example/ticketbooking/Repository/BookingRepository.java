@@ -2,6 +2,8 @@ package com.example.ticketbooking.Repository;
 
 import com.example.ticketbooking.Model.Purchase;
 
+import java.util.ArrayList;
+
 public class BookingRepository {
     private Purchase currentPurchase;
     public static BookingRepository instance;
@@ -43,5 +45,36 @@ public class BookingRepository {
     }
     public Purchase getCurrentPurchase() {
         return this.currentPurchase;
+    }
+    public void setCinemaName(String cinemaName) {
+        this.currentPurchase.setCinemaName(cinemaName);
+    }
+    public void setMovieName(String movieName) {
+        this.currentPurchase.setMovieName(movieName);
+    }
+    public String getCinemaId() {
+        return this.currentPurchase.getCinemaId();
+    }
+    public String getMovieId() {
+        return this.currentPurchase.getMovieId();
+    }
+    public String getDate() {
+        return this.currentPurchase.getDate();
+    }
+    public String getTime() {
+        return this.currentPurchase.getTime();
+    }
+    public String getCinemaName() {
+        return this.currentPurchase.getCinemaName();
+    }
+    public String getMovieName() {
+        return this.currentPurchase.getMovieName();
+    }
+    public ArrayList<Integer> getSeat() {
+        return this.currentPurchase.getSeat();
+    }
+
+    public void setSeat(ArrayList<Integer> seat) {
+        this.currentPurchase.setSeat(seat);
     }
 }

@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView imageRecyclerView;
     RecyclerView.Adapter imageAdapter;
     ArrayList<Movie> movies;
+    ArrayList<Integer> hottestMoviesIndex;
     RecyclerView movieRecyclerView;
     RecyclerView.Adapter movieAdapter;
     FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -79,10 +80,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 movies = new ArrayList<>();
+                hottestMoviesIndex = new ArrayList<>();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     movies.add(Movie.fromFirebaseData(dataSnapshot));
+                    if (dataSnapshot.hasChild("is_hot")) {
+                        if (dataSnapshot.child("is_hot").getValue().toString().equals("true")) {
+                            hottestMoviesIndex.add(movies.size() - 1);
+                        }
+                    }
                 }
-                Log.v("TAG", movies.size() + "");
+                //Log.v("TAG", movies.size() + "");
                 handleImageRecyclerView();
                 handleMovieRecyclerView();
             }
@@ -95,12 +102,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleImageRecyclerView() {
-        Log.v("TAG1", movies.size() + "");
+        //Log.v("TAG1", movies.size() + "");
+        ArrayList<Movie> hottestMovies = new ArrayList<>();
+        for (int i = 0; i < hottestMoviesIndex.size(); i++) {
+            hottestMovies.add(movies.get(hottestMoviesIndex.get(i)));
+        }
         imageRecyclerView = findViewById(R.id.activity_main_image_movie);
         imageRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        imageAdapter = new ImageAdapter(movies, new RecyclerViewClickInterface() {
+        imageAdapter = new ImageAdapter(hottestMovies, new RecyclerViewClickInterface() {
             @Override
             public void onItemClick(int position) {
+                Intent intent = new Intent(MainActivity.this, MovieDetailActivity.class);
+                intent.putExtra("movieId", movies.get(position).getId());
+                startActivity(intent);
             }
 
             @Override

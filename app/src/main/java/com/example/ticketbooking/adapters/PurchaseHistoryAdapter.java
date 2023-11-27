@@ -1,6 +1,7 @@
 package com.example.ticketbooking.adapters;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -28,7 +29,8 @@ public class PurchaseHistoryAdapter extends RecyclerView.Adapter<PurchaseHistory
     @NonNull
     @Override
     public PurchaseHistoryAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View inflator = View.inflate(parent.getContext(), R.layout.purchase_history_viewholder, null);
+        this.context = parent.getContext();
+        View inflator = LayoutInflater.from(parent.getContext()).inflate(R.layout.purchase_history_viewholder, parent, false);
         return new PurchaseHistoryAdapter.ViewHolder(inflator);
     }
 
@@ -37,8 +39,9 @@ public class PurchaseHistoryAdapter extends RecyclerView.Adapter<PurchaseHistory
         Purchase purchase = purchases.get(position);
         holder.movieName.setText(purchase.getMovieName());
         holder.cinemaName.setText(purchase.getCinemaName());
-        holder.time.setText(purchase.getTime());
-        holder.date.setText(purchase.getDate());
+        String realtime = String.valueOf(Integer.parseInt(purchase.getTime()) + 9) + ":30";
+        holder.time.setText("Time: " + realtime);
+        holder.date.setText("Date: " + purchase.getDate());
 
         String newSeats = "";
         int size = purchase.getSeat().size();
@@ -48,14 +51,19 @@ public class PurchaseHistoryAdapter extends RecyclerView.Adapter<PurchaseHistory
                 newSeats += ",";
             }
         }
-        holder.seat.setText(newSeats);
+        holder.seat.setText("Seat: " + newSeats);
         holder.status.setText(purchase.getStatus());
 
         if (purchase.getStatus().equals("booked")) {
             holder.status.setText("e-ticket has been released");
             holder.status.setBackgroundResource(R.drawable.bg_ticket_purchase_done);
-        } else {
+        } else if (purchase.getStatus().equals("inprogress")){
+            holder.status.setTextColor(context.getResources().getColor(R.color.white));
+            holder.status.setText("please choose your seat!");
             holder.status.setBackgroundResource(R.drawable.bg_ticket_purchase_inprogress);
+        } else if (purchase.getStatus().equals("failed")) {
+            holder.status.setText("your purchase failed, try again");
+            holder.status.setBackgroundResource(R.drawable.bg_ticket_purchase_fail);
         }
     }
 
