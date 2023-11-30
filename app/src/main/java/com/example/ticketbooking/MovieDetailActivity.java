@@ -26,12 +26,14 @@ import com.example.ticketbooking.Dialog.WishlistHelper;
 import com.example.ticketbooking.Model.Cinema;
 import com.example.ticketbooking.Model.DateModel;
 import com.example.ticketbooking.Model.Movie;
+import com.example.ticketbooking.Model.TimeModel;
 import com.example.ticketbooking.Model.User;
 import com.example.ticketbooking.Repository.BookingRepository;
 import com.example.ticketbooking.adapters.CinemaAdapter;
 import com.example.ticketbooking.adapters.DateAdapter;
 import com.example.ticketbooking.adapters.MovieAdapter;
 import com.example.ticketbooking.adapters.RecyclerViewClickInterface;
+import com.example.ticketbooking.adapters.TimeAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -65,6 +67,8 @@ public class MovieDetailActivity extends AppCompatActivity implements WishlistHe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
+
+        BookingRepository.getInstance().resetCurrentPurchase();
 
         String movieId = getIntent().getStringExtra("movieId");
 
@@ -139,18 +143,70 @@ public class MovieDetailActivity extends AppCompatActivity implements WishlistHe
     }
 
     private void handleCinemaRecylerView() {
+        ArrayList<RecyclerView.Adapter> timeAdapters = new ArrayList<>();
+        for (int i = 0; i < cinemas.size(); i++) {
+            final Cinema cinema = cinemas.get(i);
+            final int idx = i;
+            timeAdapters.add(new TimeAdapter(cinema.getTime(), new RecyclerViewClickInterface() {
+                @Override
+                public void onItemClick(int position) {
+                    TimeAdapter timeAdapter = (TimeAdapter) timeAdapters.get(idx);
+                    TimeModel time = cinema.getTime().get(position);
+                    if (time.isBlocked()) {
+                        return;
+                    }
+
+                    if (BookingRepository.getInstance().getCinemaId().equals(String.valueOf(idx)) && BookingRepository.getInstance().getTime().equals(time.getTime())) {
+                        return;
+                    }
+
+                    if (BookingRepository.getInstance().getCinemaId().equals(String.valueOf(idx))) {
+                        for (int j = 0; j < cinemas.get(idx).getTime().size(); j++) {
+                            if (cinemas.get(idx).getTime().get(j).getTime().equals(BookingRepository.getInstance().getTime())) {
+                                cinemas.get(idx).getTime().get(j).setSelected(false);
+                                timeAdapter.notifyItemChanged(j);
+                                break;
+                            }
+                        }
+                    } else {
+                        if (BookingRepository.getInstance().getCinemaId().isEmpty()) {
+                            BookingRepository.getInstance().setCinemaId(String.valueOf(idx));
+                        } else {
+                            int previousCinemaId = Integer.parseInt(BookingRepository.getInstance().getCinemaId());
+                            for (int j = 0; j < cinemas.get(previousCinemaId).getTime().size(); j++) {
+                                if (cinemas.get(previousCinemaId).getTime().get(j).getTime().equals(BookingRepository.getInstance().getTime())) {
+                                    cinemas.get(previousCinemaId).getTime().get(j).setSelected(false);
+                                    timeAdapters.get(previousCinemaId).notifyItemChanged(j);
+                                    break;
+                                }
+                            }
+                            BookingRepository.getInstance().setCinemaId(String.valueOf(idx));
+                        }
+                    }
+
+                    cinemas.get(idx).getTime().get(position).setSelected(true);
+                    timeAdapter.notifyItemChanged(position);
+
+                    BookingRepository.getInstance().setTime(time.getTime());
+                }
+
+                @Override
+                public void onLongItemClick(int position) {
+                }
+            }));
+        }
+
         cinemaRecyclerView = findViewById(R.id.cinema_view);
         cinemaRecyclerView.setLayoutManager(new LinearLayoutManager(MovieDetailActivity.this, LinearLayoutManager.VERTICAL, false));
         cinemaAdapter = new CinemaAdapter(cinemas, new RecyclerViewClickInterface() {
             @Override
             public void onItemClick(int position) {
-                //cinemaAdapter.notifyItemChanged(position);
             }
 
             @Override
             public void onLongItemClick(int position) {
             }
-        }, MovieDetailActivity.this);
+        }, MovieDetailActivity.this, timeAdapters);
         cinemaRecyclerView.setAdapter(cinemaAdapter);
     }
 
@@ -202,7 +258,7 @@ public class MovieDetailActivity extends AppCompatActivity implements WishlistHe
         movieRating.setText(movie.getRating());
         movieDuration.setText(movie.getDuration());
         movieGenre.setText(movie.getGenre());
-        Glide.with(this).load("https://image.tmdb.org/t/p/w500" + movie.getBackdropPath()).placeholder(R.drawable.movie_detail_background_image).override(1250,600).fitCenter().into(moviePoster);
+        Glide.with(this).load("https://image.tmdb.org/t/p/w500" + movie.getBackdropPath()).placeholder(R.drawable.movie_detail_background_image).override(1350,600).fitCenter().into(moviePoster);
 
         ImageButton movieExpand = findViewById(R.id.card_movie_item_expand_button);
         movieExpand.setOnClickListener(v -> {

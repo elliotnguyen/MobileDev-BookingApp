@@ -37,11 +37,14 @@ public class Cinema {
 
     public void setTime(ArrayList<String> time) {
         for (int i = 0; i < 12; i++) {
-            this.time.add(new TimeModel("", false, true));
+            this.time.add(new TimeModel("", true, true));
         }
 
         for (String t : time) {
-            this.time.set(Integer.parseInt(t), new TimeModel(t, false, false));
+            TimeModel timeModel = this.time.get(Integer.parseInt(t));
+            timeModel.setTime(t);
+            timeModel.setBlocked(false);
+            timeModel.setSelected(false);
         }
     }
 

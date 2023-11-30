@@ -41,7 +41,9 @@ public class BookingRepository {
         this.currentPurchase.setStatus(status);
     }
     public void resetCurrentPurchase() {
-        this.currentPurchase = new Purchase();
+        if (this.currentPurchase != null) {
+            this.currentPurchase = new Purchase();
+        }
     }
     public Purchase getCurrentPurchase() {
         return this.currentPurchase;
@@ -73,7 +75,6 @@ public class BookingRepository {
     public ArrayList<Integer> getSeat() {
         return this.currentPurchase.getSeat();
     }
-
     public void setSeat(ArrayList<Integer> seat) {
         this.currentPurchase.setSeat(seat);
     }

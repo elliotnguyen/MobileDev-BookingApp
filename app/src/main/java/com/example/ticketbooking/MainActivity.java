@@ -4,9 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.CompositePageTransformer;
+import androidx.viewpager2.widget.MarginPageTransformer;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -32,8 +37,12 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import me.relex.circleindicator.CircleIndicator3;
+
 public class MainActivity extends AppCompatActivity {
-    RecyclerView imageRecyclerView;
+    //RecyclerView imageRecyclerView;
+    ViewPager2 mImageRecyclerView;
+    CircleIndicator3 mIndicator;
     RecyclerView.Adapter imageAdapter;
     ArrayList<Movie> movies;
     ArrayList<Integer> hottestMoviesIndex;
@@ -130,14 +139,49 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private Handler mHandler = new Handler(Looper.getMainLooper());
+    private Runnable mRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (mImageRecyclerView.getAdapter() == null || mImageRecyclerView.getAdapter().getItemCount() == 0) {
+                return;
+            }
+            int size = mImageRecyclerView.getAdapter().getItemCount();
+            mImageRecyclerView.setCurrentItem((mImageRecyclerView.getCurrentItem() + 1) % size);
+        }
+    };
+
     private void handleImageRecyclerView() {
         //Log.v("TAG1", movies.size() + "");
         ArrayList<Movie> hottestMovies = new ArrayList<>();
         for (int i = 0; i < hottestMoviesIndex.size(); i++) {
             hottestMovies.add(movies.get(hottestMoviesIndex.get(i)));
         }
-        imageRecyclerView = findViewById(R.id.activity_main_image_movie);
-        imageRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        //imageRecyclerView = findViewById(R.id.activity_main_image_movie);
+        mImageRecyclerView = findViewById(R.id.activity_main_image_movie);
+        mIndicator = findViewById(R.id.activity_main_indicator);
+        mImageRecyclerView.setOffscreenPageLimit(3);
+        mImageRecyclerView.setClipToPadding(false);
+        mImageRecyclerView.setClipChildren(false);
+        CompositePageTransformer compositePageTransformer = new CompositePageTransformer();
+        compositePageTransformer.addTransformer(new MarginPageTransformer(40));
+        mImageRecyclerView.setPageTransformer(compositePageTransformer);
+        mImageRecyclerView.setPageTransformer(new ViewPager2.PageTransformer() {
+            @Override
+            public void transformPage(@NonNull View page, float position) {
+                float r = 1 - Math.abs(position);
+                page.setScaleY(0.85f + r * 0.15f);
+            }
+        });
+        mImageRecyclerView.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageScrollStateChanged(position);
+                mHandler.removeCallbacks(mRunnable);
+                mHandler.postDelayed(mRunnable, 3000);
+            }
+        });
+        //imageRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         imageAdapter = new ImageAdapter(hottestMovies, new RecyclerViewClickInterface() {
             @Override
             public void onItemClick(int position) {
@@ -150,7 +194,9 @@ public class MainActivity extends AppCompatActivity {
             public void onLongItemClick(int position) {
             }
         }, this);
-        imageRecyclerView.setAdapter(imageAdapter);
+        //imageRecyclerView.setAdapter(imageAdapter);
+        mImageRecyclerView.setAdapter(imageAdapter);
+        mIndicator.setViewPager(mImageRecyclerView);
     }
 
     private void handleMovieRecyclerView() {
@@ -169,5 +215,17 @@ public class MainActivity extends AppCompatActivity {
             }
         }, this);
         movieRecyclerView.setAdapter(movieAdapter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mHandler.removeCallbacks(mRunnable);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mHandler.postDelayed(mRunnable, 3000);
     }
 }

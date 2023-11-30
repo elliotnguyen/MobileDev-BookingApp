@@ -42,6 +42,8 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("com.squareup.picasso:picasso:2.8")
 
+    implementation("me.relex:circleindicator:2.1.6")
+
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("it.xabaras.android:recyclerview-swipedecorator:1.4")
 

@@ -126,7 +126,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:paddingLeft="10dp"
-            android:text="Available"
+            android:text="Selected"
             android:textSize="10sp"
             app:drawableStartCompat="@drawable/your_selection_cirlce" />
     </LinearLayout>

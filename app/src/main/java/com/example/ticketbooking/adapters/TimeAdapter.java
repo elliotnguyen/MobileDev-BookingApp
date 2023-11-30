@@ -39,17 +39,15 @@ public class TimeAdapter extends RecyclerView.Adapter<TimeAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull TimeAdapter.ViewHolder holder, int position) {
         TimeModel time = times.get(position);
         holder.time.setText(TimeModel.showTimeWithFormat(String.valueOf(position)));
-        if (time.isBlocked()) {
+        holder.time.setBackgroundResource(R.drawable.bg_time_available);
+        holder.time.setTypeface(holder.time.getTypeface(), Typeface.NORMAL);
+        holder.time.setTextColor(context.getResources().getColor(R.color.black));
+        if (time.isBlocked() && time.isSelected()) {
             holder.time.setBackgroundResource(R.drawable.bg_time_blocked);
             holder.time.setEnabled(false);
-        } else {
-            if (time.isSelected()) {
-                holder.time.setTypeface(holder.time.getTypeface(), Typeface.BOLD);
-                holder.time.setTextColor(context.getResources().getColor(R.color.blue));
-            } else {
-                holder.time.setTypeface(holder.time.getTypeface(), Typeface.NORMAL);
-                holder.time.setTextColor(context.getResources().getColor(R.color.black));
-            }
+        } else if (time.isSelected()) {
+            holder.time.setTypeface(holder.time.getTypeface(), Typeface.BOLD);
+            holder.time.setTextColor(context.getResources().getColor(R.color.blue));
         }
     }
 
@@ -67,14 +65,14 @@ public class TimeAdapter extends RecyclerView.Adapter<TimeAdapter.ViewHolder> {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    recyclerViewClickInterface.onItemClick(getAdapterPosition());
+                    recyclerViewClickInterface.onItemClick(getBindingAdapterPosition());
                 }
             });
 
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    recyclerViewClickInterface.onLongItemClick(getAdapterPosition());
+                    recyclerViewClickInterface.onLongItemClick(getAbsoluteAdapterPosition());
                     return true;
                 }
             });

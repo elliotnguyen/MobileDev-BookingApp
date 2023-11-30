@@ -27,6 +27,8 @@ public class Purchase {
     }
 
     public Purchase() {
+        this.cinemaId = "";
+        this.time="";
         //this.seat = new ArrayList<>();
     }
 

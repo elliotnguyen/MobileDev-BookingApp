@@ -68,14 +68,6 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.Wishli
             movieImage = itemView.findViewById(R.id.wishlist_holder_image);
             movieDuration = itemView.findViewById(R.id.wishlist_holder_duration);
             movieGenre = itemView.findViewById(R.id.wishlist_holder_genre);
-            deleteBtn = itemView.findViewById(R.id.wishlist_holder_delete);
-
-            deleteBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    recyclerViewClickInterface.onLongItemClick(getAdapterPosition());
-                }
-            });
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -102,7 +102,6 @@ public class PurchaseResultActivity extends AppCompatActivity {
         shareBtn.setOnClickListener(view -> {
             shareTicket();
         });
-
     }
 
     private void shareTicket() {
@@ -193,7 +192,7 @@ public class PurchaseResultActivity extends AppCompatActivity {
                 try {
                     addresses = geocoder.getFromLocation(currentLocation.getLatitude(), currentLocation.getLongitude(), 1);
                     String userAddress = addresses.get(0).getAddressLine(0);
-                    showDirection(userAddress, CinemaAddress);
+                    showDirection("Địa chỉ của tôi", CinemaAddress);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

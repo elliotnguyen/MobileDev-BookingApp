@@ -6,12 +6,21 @@
     android:layout_height="match_parent"
     tools:context=".SignUpActivity">
 
+
     <ImageView
-        android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="wrap_content"
         android:scaleType="centerCrop"
-        android:src="@drawable/blue_button_background"
+        android:src="@drawable/oval_2__2_"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scaleType="centerCrop"
+        android:src="@drawable/oval_2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -31,21 +40,21 @@
             android:id="@+id/username_signup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="UserName"
+            android:text="Username"
             android:textColor="#000000"
             android:textSize="20sp"
             android:textStyle="bold" />
 
         <EditText
+            android:text="username"
+            android:paddingLeft="20dp"
             android:id="@+id/username_signup_edit"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="24dp"
             android:background="@drawable/bg_editext_search"
-            android:ems="10"
             android:inputType="textPersonName"
-            android:padding="8dp"
             android:textColor="#8e8e8e"
             android:textColorHint="#8e8e8e"
             android:textSize="18dp" />
@@ -60,16 +69,15 @@
             android:textStyle="bold" />
 
         <EditText
+            android:paddingLeft="20dp"
             android:id="@+id/email_signup_edit"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="24dp"
             android:background="@drawable/bg_editext_search"
-            android:ems="10"
             android:hint="example@gmail.com"
             android:inputType="textPersonName"
-            android:padding="8dp"
             android:textColor="#8e8e8e"
             android:textColorHint="#8e8e8e"
             android:textSize="18dp" />
@@ -84,20 +92,20 @@
             android:textStyle="bold" />
 
         <EditText
+            android:paddingLeft="20dp"
             android:id="@+id/password_signup_edit"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="24dp"
             android:background="@drawable/bg_editext_search"
-            android:ems="10"
             android:inputType="textPassword"
-            android:padding="8dp"
             android:textColor="#8e8e8e"
             android:textColorHint="#8e8e8e"
             android:textSize="18dp" />
 
         <TextView
+            android:paddingHorizontal="5dp"
             android:id="@+id/password_reenter_signup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

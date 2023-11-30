@@ -26,7 +26,6 @@ public class SignUpActivity extends AppCompatActivity {
     String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
     FirebaseAuth auth;
     FirebaseDatabase database;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,7 +75,7 @@ public class SignUpActivity extends AppCompatActivity {
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
                                             ProgressHelper.showDialog(SignUpActivity.this, "Establishing The Account...");
-                                            Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+                                            Intent intent = new Intent(SignUpActivity.this, SignInActivity.class);
                                             startActivity(intent);
                                             finish();
                                         } else {

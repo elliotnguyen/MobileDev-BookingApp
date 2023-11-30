@@ -31,14 +31,15 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     @NonNull
     @Override
     public ImageAdapter.ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View inflator = View.inflate(parent.getContext(), R.layout.image_main_activity_viewholder, null);
+        //View inflator = View.inflate(parent.getContext(), R.layout.image_main_activity_viewholder, null);
+        View inflator = LayoutInflater.from(parent.getContext()).inflate(R.layout.image_main_activity_viewholder, parent, false);
         return new ImageAdapter.ImageViewHolder(inflator);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ImageAdapter.ImageViewHolder holder, int position) {
        String url = movies.get(position).getPosterPath();
-       Glide.with(context).load("https://image.tmdb.org/t/p/w500" + url).placeholder(R.drawable.bg_image_main_activity).override(800, 1080).into(holder.imageView);
+       Glide.with(context).load("https://image.tmdb.org/t/p/w500" + url).placeholder(R.drawable.bg_image_main_activity).into(holder.imageView);
     }
 
     @Override

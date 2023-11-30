@@ -18,6 +18,7 @@ import com.example.ticketbooking.adapters.RecyclerViewClickInterface;
 import com.example.ticketbooking.adapters.WishlistAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -37,6 +38,7 @@ public class WishlistActivity extends AppCompatActivity {
     RecyclerView.Adapter wishlistAdapter;
     DatabaseReference userRef;
     ArrayList<Movie> wishList;
+    ArrayList<Movie> removedWishList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +46,11 @@ public class WishlistActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         userRef = myRef.child("users").child(mAuth.getCurrentUser().getUid());
+
+        wishList = new ArrayList<>();
+        removedWishList = new ArrayList<>();
+
+        handleWishlistRecyclerView();
 
         getWishlistData(userRef);
 
@@ -54,7 +61,54 @@ public class WishlistActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(removeWishListCallBack);
+        itemTouchHelper.attachToRecyclerView(wishlistRecyclerView);
     }
+
+    ItemTouchHelper.SimpleCallback removeWishListCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            final int position = viewHolder.getAdapterPosition();
+            Movie movie = wishList.get(position);
+            String movieName = movie.getTitle();
+
+            switch (direction) {
+                case ItemTouchHelper.LEFT:
+                    wishList.remove(position);
+                    removedWishList.add(movie);
+                    wishlistAdapter.notifyItemRemoved(position);
+                    Snackbar.make(wishlistRecyclerView, movieName + " deleted", Snackbar.LENGTH_LONG)
+                            .setAction("Undo", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    wishList.add(position, movie);
+                                    wishlistAdapter.notifyItemInserted(position);
+                                }
+                            }).show();
+                    break;
+                case ItemTouchHelper.RIGHT:
+                    break;
+            }
+
+        }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            new RecyclerViewSwipeDecorator.Builder(WishlistActivity.this, c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                    .addSwipeLeftBackgroundColor(ContextCompat.getColor(WishlistActivity.this, R.color.blue))
+                    .addSwipeLeftActionIcon(R.drawable.baseline_delete_24)
+                    .addSwipeRightBackgroundColor(ContextCompat.getColor(WishlistActivity.this, R.color.white))
+                    .addSwipeRightActionIcon(R.drawable.baseline_delete_24)
+                    .setActionIconTint(ContextCompat.getColor(recyclerView.getContext(), android.R.color.white))
+                    .create()
+                    .decorate();
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        }
+    };
 
     private void getWishlistData(DatabaseReference userRef) {
         userRef.child("wishlist").addValueEventListener(new ValueEventListener() {
@@ -64,8 +118,21 @@ public class WishlistActivity extends AppCompatActivity {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     wishlist.add(dataSnapshot.getValue(String.class));
                 }
-                wishList = new ArrayList<>();
-                setWishlistRecyclerView(wishlist);
+                for (String movie : wishlist) {
+                    myRef.child("movies").child(movie).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            Movie wishlistMovie = Movie.fromFirebaseData(snapshot);
+                            wishList.add(wishlistMovie);
+                            wishlistAdapter.notifyItemInserted(wishList.size() - 1);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                }
             }
 
             @Override
@@ -76,57 +143,37 @@ public class WishlistActivity extends AppCompatActivity {
         });
     }
 
-    private void setWishlistRecyclerView(ArrayList<String> wishlistString) {
-        final int size = wishlistString.size();
-        for (String movie : wishlistString) {
-            myRef.child("movies").child(movie).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    Movie wishlistMovie = Movie.fromFirebaseData(snapshot);
-                    wishList.add(wishlistMovie);
-
-                    if (wishList.size() == size) {
-                        handleWishlistRecyclerView();
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }
-    }
-
     private void handleWishlistRecyclerView() {
         wishlistRecyclerView = findViewById(R.id.wishlist_recycler_view);
         wishlistRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         wishlistAdapter = new WishlistAdapter(wishList, new RecyclerViewClickInterface() {
             @Override
-            public void onItemClick(int position) {
-
-            }
+            public void onItemClick(int position) {}
 
             @Override
-            public void onLongItemClick(int position) {
-                removeMovieFromWishlist(wishList.get(position), position);
-                wishlistAdapter.notifyItemRemoved(position);
-            }
+            public void onLongItemClick(int position) {}
         }, this);
         wishlistRecyclerView.setAdapter(wishlistAdapter);
     }
 
-    private void removeMovieFromWishlist(Movie movie, int position) {
-        userRef.child("wishlist").child(movie.getId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+    private void removeMovieFromWishlist(String movieId) {
+        userRef.child("wishlist").child(movieId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    wishList.remove(position);
-                    Toast.makeText(WishlistActivity.this, "Removed " + movie.getTitle() + " from wishlist", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(WishlistActivity.this, "Server excess rating...", Toast.LENGTH_SHORT).show();
                 }
             }
         });;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        for (Movie movie : removedWishList) {
+            removeMovieFromWishlist(movie.getId());
+        }
     }
 }

@@ -23,14 +23,15 @@ public class CinemaAdapter extends RecyclerView.Adapter<CinemaAdapter.ViewHolder
     Context context;
     int previousTimePosition;
     int previousCinemaPosition;
-    public CinemaAdapter(ArrayList<Cinema> cinemas, RecyclerViewClickInterface recyclerViewClickInterface, Context context) {
+    public CinemaAdapter(ArrayList<Cinema> cinemas, RecyclerViewClickInterface recyclerViewClickInterface, Context context, ArrayList<RecyclerView.Adapter> TimeAdapter) {
         this.cinemas = cinemas;
         this.recyclerViewClickInterface = recyclerViewClickInterface;
         this.context = context;
-        TimeAdapter = new ArrayList<>();
+        this.TimeAdapter = TimeAdapter;
+        //TimeAdapter = new ArrayList<>();
 
-        previousTimePosition = -1;
-        previousCinemaPosition = -1;
+        /*previousTimePosition = -1;
+        previousCinemaPosition = -1;*/
     }
 
     @NonNull
@@ -46,24 +47,24 @@ public class CinemaAdapter extends RecyclerView.Adapter<CinemaAdapter.ViewHolder
 
         holder.cinemaName.setText(cinema.getName());
         holder.timeRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
-        final int pos = position;
 
-        ArrayList<TimeModel> times = cinema.getTime();
-        RecyclerView.Adapter timeAdapter = new TimeAdapter(times, new RecyclerViewClickInterface() {
+        //ArrayList<TimeModel> times = cinema.getTime();
+        /*RecyclerView.Adapter timeAdapter = new TimeAdapter(cinema.getTime(), new RecyclerViewClickInterface() {
             @Override
             public void onItemClick(int position) {
-                TimeModel time = times.get(position);
+                TimeModel time = cinema.getTime().get(position);
                 if (time.isBlocked()) {
                     return;
                 }
 
                 if (previousTimePosition != -1 && previousCinemaPosition != -1) {
-                    ArrayList<TimeModel> previousTimes = cinemas.get(previousCinemaPosition).getTime();
-                    previousTimes.get(previousTimePosition).setSelected(false);
+                    //ArrayList<TimeModel> previousTimes =
+                    cinemas.get(previousCinemaPosition).getTime().get(previousTimePosition).setSelected(false);;
+                    //previousTimes.get(previousTimePosition).setSelected(false);
                     TimeAdapter.get(previousCinemaPosition).notifyItemChanged(previousTimePosition);
                 }
 
-                times.get(position).setSelected(true);
+                cinema.getTime().get(position).setSelected(true);
                 TimeAdapter.get(pos).notifyItemChanged(position);
                 previousTimePosition = position;
                 previousCinemaPosition = pos;
@@ -75,13 +76,13 @@ public class CinemaAdapter extends RecyclerView.Adapter<CinemaAdapter.ViewHolder
             @Override
             public void onLongItemClick(int position) {
             }
-        });
-        holder.timeRecyclerView.setAdapter(timeAdapter);
-        if (!this.TimeAdapter.isEmpty() && TimeAdapter.size() > position) {
+        });*/
+        holder.timeRecyclerView.setAdapter(TimeAdapter.get(position));
+        /*if (!this.TimeAdapter.isEmpty() && TimeAdapter.size() > position) {
             this.TimeAdapter.set(position, timeAdapter);
         } else {
             this.TimeAdapter.add(timeAdapter);
-        }
+        }*/
     }
 
     @Override
