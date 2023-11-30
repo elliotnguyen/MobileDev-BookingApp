@@ -8,8 +8,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.ticketbooking.Model.Movie;
 import com.example.ticketbooking.Model.Purchase;
@@ -47,9 +52,33 @@ public class MainActivity extends AppCompatActivity {
 
         DatabaseReference userRef = myRef.child("users").child(auth.getCurrentUser().getUid());
         profileImage = findViewById(R.id.navbar_profile);
-        profileImage.setOnClickListener(view -> {
-            Intent intent = new Intent(MainActivity.this, PurchaseHistoryActivity.class);
-            startActivity(intent);
+        profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showSubMenu(view);
+            }
+
+            private void showSubMenu(View view) {
+                PopupMenu popupMenu = new PopupMenu(MainActivity.this, view);
+                popupMenu.getMenuInflater().inflate(R.menu.menu_user, popupMenu.getMenu());
+
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        if (item.getItemId() == R.id.action_purchase) {
+                            Intent intent = new Intent(MainActivity.this, PurchaseHistoryActivity.class);
+                            startActivity(intent);
+                        } else if (item.getItemId() == R.id.action_wishlist) {
+                            Intent intent = new Intent(MainActivity.this, WishlistActivity.class);
+                            startActivity(intent);
+                        }
+                        return true;
+                    }
+                });
+
+                popupMenu.setGravity(Gravity.END);
+                popupMenu.show();
+            }
         });
 
         getMovieData();

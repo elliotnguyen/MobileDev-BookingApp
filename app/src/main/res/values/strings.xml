@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TicketBooking</string>
+    <string name="my_map_api_key">AIzaSyBIKccYk0DBzixscbKpAonBH-eW91XHu-s</string>
 </resources>

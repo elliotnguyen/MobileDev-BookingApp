@@ -21,6 +21,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.ticketbooking.Calendar.DateUtils;
 import com.example.ticketbooking.Dialog.ProgressHelper;
+import com.example.ticketbooking.Dialog.VerifyPurchaseHelper;
+import com.example.ticketbooking.Dialog.WishlistHelper;
 import com.example.ticketbooking.Model.Cinema;
 import com.example.ticketbooking.Model.DateModel;
 import com.example.ticketbooking.Model.Movie;
@@ -28,6 +30,7 @@ import com.example.ticketbooking.Model.User;
 import com.example.ticketbooking.Repository.BookingRepository;
 import com.example.ticketbooking.adapters.CinemaAdapter;
 import com.example.ticketbooking.adapters.DateAdapter;
+import com.example.ticketbooking.adapters.MovieAdapter;
 import com.example.ticketbooking.adapters.RecyclerViewClickInterface;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -44,7 +47,7 @@ import org.checkerframework.common.returnsreceiver.qual.This;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class MovieDetailActivity extends AppCompatActivity {
+public class MovieDetailActivity extends AppCompatActivity implements WishlistHelper.HandlerDialogListener {
     RecyclerView dateRecyclerView;
     RecyclerView.Adapter dateAdapter;
     RecyclerView cinemaRecyclerView;
@@ -75,6 +78,19 @@ public class MovieDetailActivity extends AppCompatActivity {
         handleBookingForward();
 
         handleBookingBackward();
+
+        handleWishList();
+    }
+
+    private void handleWishList() {
+        ImageView wishlistButton = findViewById(R.id.activity_movie_detail_wishlist_btn);
+        wishlistButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WishlistHelper wishlistHelper = new WishlistHelper(MovieDetailActivity.this);
+                wishlistHelper.show(getSupportFragmentManager(), "wishlist");
+            }
+        });
     }
 
     private void getMovieData(String id) {
@@ -264,5 +280,21 @@ public class MovieDetailActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         ProgressHelper.dismissDialog();
+    }
+
+    @Override
+    public void handle() {
+        String movieId = BookingRepository.getInstance().getMovieId();
+        String userId = mAuth.getCurrentUser().getUid();
+        myRef.child("users").child(userId).child("wishlist").child(movieId).setValue(movieId).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(MovieDetailActivity.this, "Added " + movie.getTitle() + " to wishlist", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MovieDetailActivity.this, "Server excess rating...", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }

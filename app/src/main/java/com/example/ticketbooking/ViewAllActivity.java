@@ -11,7 +11,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.TextView;
 
 import com.example.ticketbooking.Model.Movie;
 import com.example.ticketbooking.adapters.MovieAdapter;
@@ -41,17 +46,91 @@ public class ViewAllActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_all);
 
         DatabaseReference userRef = myRef.child("users").child(mAuth.getCurrentUser().getUid());
-        profileImage = findViewById(R.id.navbar_profile_view_all);
-        profileImage.setOnClickListener(view -> {
-            Intent intent = new Intent(ViewAllActivity.this, PurchaseHistoryActivity.class);
-            startActivity(intent);
-        });
-
+        handleUserNavabr();
 
         getMovieData();
         getUserData(userRef);
 
         handleSearchBar();
+        handleFilterGenre();
+    }
+
+    private void handleFilterGenre() {
+        ImageView filterGenre = findViewById(R.id.view_all_content_filter);
+        filterGenre.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showFilterMenu(view);
+            }
+
+            private void showFilterMenu(View view) {
+                PopupMenu popupMenu = new PopupMenu(ViewAllActivity.this, view);
+                popupMenu.getMenuInflater().inflate(R.menu.menu_genre, popupMenu.getMenu());
+
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) { // when user press search button
+                        if (item.getItemId() == R.id.genre_action) {
+                            movieAdapter.setMovies(movies);
+                            movieAdapter.getFilter().filter("filter Action");
+                        } else if (item.getItemId() == R.id.genre_adventure) {
+                            movieAdapter.setMovies(movies);
+                            movieAdapter.getFilter().filter("filter Adventure");
+                        } else if (item.getItemId() == R.id.genre_animation) {
+                            movieAdapter.setMovies(movies);
+                            movieAdapter.getFilter().filter("filter Animation");
+                        } else if (item.getItemId() == R.id.genre_comedy) {
+                            movieAdapter.setMovies(movies);
+                            movieAdapter.getFilter().filter("filter Comedy");
+                        } else if (item.getItemId() == R.id.genre_crime) {
+                            movieAdapter.setMovies(movies);
+                            movieAdapter.getFilter().filter("filter Crime");
+                        } else if (item.getItemId() == R.id.genre_drama) {
+                            movieAdapter.setMovies(movies);
+                            movieAdapter.getFilter().filter("filter Drama");
+                        } else if (item.getItemId() == R.id.genre_all) {
+                            movieAdapter.setMovies(movies);
+                        }
+                        return false;
+                    }
+                });
+
+                popupMenu.setGravity(Gravity.END);
+                popupMenu.show();
+            }
+        });
+    }
+
+    private void handleUserNavabr() {
+        profileImage = findViewById(R.id.navbar_profile_view_all);
+        profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showSubMenu(view);
+            }
+
+            private void showSubMenu(View view) {
+                PopupMenu popupMenu = new PopupMenu(ViewAllActivity.this, view);
+                popupMenu.getMenuInflater().inflate(R.menu.menu_user, popupMenu.getMenu());
+
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        if (item.getItemId() == R.id.action_purchase) {
+                            Intent intent = new Intent(ViewAllActivity.this, PurchaseHistoryActivity.class);
+                            startActivity(intent);
+                        } else if (item.getItemId() == R.id.action_wishlist) {
+                            Intent intent = new Intent(ViewAllActivity.this, WishlistActivity.class);
+                            startActivity(intent);
+                        }
+                        return true;
+                    }
+                });
+
+                popupMenu.setGravity(Gravity.END);
+                popupMenu.show();
+            }
+        });
     }
 
     private void handleSearchBar() {

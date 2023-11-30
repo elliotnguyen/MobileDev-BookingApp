@@ -72,6 +72,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
 
                 if (searchString.isEmpty()) {
                     results.values = movies;
+                } else if (searchString.contains("filter")) {
+                    String[] filter = searchString.split(" ");
+                    ArrayList<Movie> filteredList = new ArrayList<>();
+                    for (Movie movie : movies) {
+                        if (movie.getGenre().toLowerCase().contains(filter[1])) {
+                            filteredList.add(movie);
+                        }
+                    }
+                    results.values = filteredList;
                 } else {
                     ArrayList<Movie> filteredList = new ArrayList<>();
                     for (Movie movie : movies) {

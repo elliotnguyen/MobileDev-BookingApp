@@ -162,15 +162,15 @@
         </RelativeLayout>
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/activity_purchase_result_refund"
+    <Button
+        android:id="@+id/activity_purchase_result_direction"
         android:layout_marginBottom="20dp"
         android:gravity="center"
         android:layout_marginStart="20dp"
         android:layout_width="160dp"
         android:layout_height="50dp"
-        android:background="@drawable/bg_editext_search"
-        android:text="Refund"
+        android:background="@drawable/button_blue_border"
+        android:text="Go to Cinema"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
