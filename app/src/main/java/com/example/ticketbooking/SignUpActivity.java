@@ -11,8 +11,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.ticketbooking.Dialog.ProgressHelper;
-import com.example.ticketbooking.Model.User;
+import com.example.ticketbooking.dialog.ProgressHelper;
+import com.example.ticketbooking.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;

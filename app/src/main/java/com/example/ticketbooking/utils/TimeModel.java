@@ -1,4 +1,4 @@
-package com.example.ticketbooking.Model;
+package com.example.ticketbooking.utils;
 
 public class TimeModel {
     private String time;

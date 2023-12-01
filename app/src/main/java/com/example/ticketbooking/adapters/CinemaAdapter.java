@@ -9,10 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.ticketbooking.Model.Cinema;
-import com.example.ticketbooking.Model.TimeModel;
+import com.example.ticketbooking.model.Cinema;
 import com.example.ticketbooking.R;
-import com.example.ticketbooking.Repository.BookingRepository;
 
 import java.util.ArrayList;
 

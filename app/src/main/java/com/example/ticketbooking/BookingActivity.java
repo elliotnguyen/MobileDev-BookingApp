@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -15,13 +14,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.ticketbooking.Dialog.ProgressHelper;
-import com.example.ticketbooking.Dialog.VerifyPurchaseHelper;
-import com.example.ticketbooking.Model.DateModel;
-import com.example.ticketbooking.Model.Movie;
-import com.example.ticketbooking.Model.Seat;
-import com.example.ticketbooking.Model.TimeModel;
-import com.example.ticketbooking.Repository.BookingRepository;
+import com.example.ticketbooking.dialog.ProgressHelper;
+import com.example.ticketbooking.dialog.VerifyPurchaseHelper;
+import com.example.ticketbooking.utils.DateModel;
+import com.example.ticketbooking.model.Seat;
+import com.example.ticketbooking.utils.TimeModel;
+import com.example.ticketbooking.repository.BookingRepository;
 import com.example.ticketbooking.adapters.RecyclerViewClickInterface;
 import com.example.ticketbooking.adapters.SeatAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;

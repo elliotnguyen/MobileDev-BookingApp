@@ -1,4 +1,4 @@
-package com.example.ticketbooking.Dialog;
+package com.example.ticketbooking.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -12,10 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.ticketbooking.Model.Seat;
-import com.example.ticketbooking.Model.TimeModel;
 import com.example.ticketbooking.R;
-import com.example.ticketbooking.Repository.BookingRepository;
 
 public class WishlistHelper extends DialogFragment {
     TextView movieName;

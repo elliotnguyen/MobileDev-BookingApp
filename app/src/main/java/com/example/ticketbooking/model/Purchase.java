@@ -1,4 +1,4 @@
-package com.example.ticketbooking.Model;
+package com.example.ticketbooking.model;
 
 import com.google.firebase.database.DataSnapshot;
 
@@ -28,7 +28,9 @@ public class Purchase {
 
     public Purchase() {
         this.cinemaId = "";
-        this.time="";
+        this.time = "";
+        this.date = "";
+        this.movieId = "";
         //this.seat = new ArrayList<>();
     }
 

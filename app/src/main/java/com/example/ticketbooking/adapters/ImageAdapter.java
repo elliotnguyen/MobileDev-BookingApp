@@ -1,8 +1,6 @@
 package com.example.ticketbooking.adapters;
 
 import android.content.Context;
-import android.media.Image;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.ticketbooking.Model.Movie;
+import com.example.ticketbooking.model.Movie;
 import com.example.ticketbooking.R;
 
 import java.util.ArrayList;

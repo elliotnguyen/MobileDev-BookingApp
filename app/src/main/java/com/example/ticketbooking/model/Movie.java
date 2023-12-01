@@ -1,13 +1,9 @@
-package com.example.ticketbooking.Model;
+package com.example.ticketbooking.model;
 
 import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.IgnoreExtraProperties;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 @IgnoreExtraProperties
 public class Movie {

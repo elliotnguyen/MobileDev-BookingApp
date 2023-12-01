@@ -9,10 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.ticketbooking.Model.Purchase;
-import com.example.ticketbooking.PurchaseHistoryActivity;
+import com.example.ticketbooking.model.Purchase;
 import com.example.ticketbooking.R;
-import com.example.ticketbooking.Repository.BookingRepository;
 
 import java.util.ArrayList;
 

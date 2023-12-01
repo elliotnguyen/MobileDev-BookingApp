@@ -1,4 +1,4 @@
-package com.example.ticketbooking.Dialog;
+package com.example.ticketbooking.dialog;
 
 import android.app.AlertDialog;
 import android.content.Context;

@@ -1,6 +1,6 @@
-package com.example.ticketbooking.Repository;
+package com.example.ticketbooking.repository;
 
-import com.example.ticketbooking.Model.Purchase;
+import com.example.ticketbooking.model.Purchase;
 
 import java.util.ArrayList;
 

@@ -1,10 +1,9 @@
-package com.example.ticketbooking.Model;
+package com.example.ticketbooking.model;
 
+import com.example.ticketbooking.utils.TimeModel;
 import com.google.firebase.database.DataSnapshot;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Cinema {
     private String id;

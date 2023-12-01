@@ -11,11 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.ticketbooking.Model.Movie;
+import com.example.ticketbooking.model.Movie;
 import com.example.ticketbooking.R;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.WishlistViewHolder> {
     ArrayList<Movie> movies;

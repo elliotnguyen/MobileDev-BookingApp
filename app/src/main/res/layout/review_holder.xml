@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_margin="10dp">
+
+    <TextView
+        android:id="@+id/review_author"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="Manual Sao Bento"
+        android:textSize="18sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@android:color/darker_gray"/>
+
+    <TextView
+        android:id="@+id/review_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="FULL SPOILER-FREE REVIEW @ https://www.firstshowing.net/2023/review-nolans-oppenheimer-is-a-harrowing-tale-of-one-mans-life/\n\n\Oppenheimer is a true masterclass in how to build extreme tension and suspense through fast, detailed dialogue, an insanely powerful sound production, and an equally explosive score from Ludwig Göransson. Words cannot fully describe Hoyte van Hoytema's gorgeous cinematography.\n\nIt's a harrowing, disturbing, genuinely frightening story about how one man's compulsion and political power changed the world. Cillian Murphy, Robert Downey Jr., and Emily Blunt shouldn't miss any awards ceremonies… they're absolutely superb, as are the rest of the exceptional actors involved in the movie.\n\nPacing, structure, and runtime, in addition to its quasi-documentary style and its narrative complexity, make this a difficult, heavy watch that will, for sure, leave some viewers disappointed, bored, or simply tired. Ultimately, Christopher Nolan justifies the use of the expression not for everyone\.\r\n\r\nRating: A-"
+        android:textSize="15sp"
+        android:textColor="@android:color/darker_gray"/>
+</LinearLayout>

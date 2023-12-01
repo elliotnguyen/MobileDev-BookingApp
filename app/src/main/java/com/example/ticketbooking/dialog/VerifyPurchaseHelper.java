@@ -1,4 +1,4 @@
-package com.example.ticketbooking.Dialog;
+package com.example.ticketbooking.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -7,18 +7,16 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.ticketbooking.Model.Seat;
-import com.example.ticketbooking.Model.TimeModel;
+import com.example.ticketbooking.model.Seat;
+import com.example.ticketbooking.utils.TimeModel;
 import com.example.ticketbooking.R;
-import com.example.ticketbooking.Repository.BookingRepository;
+import com.example.ticketbooking.repository.BookingRepository;
 
 public class VerifyPurchaseHelper extends DialogFragment {
     TextView movieName;

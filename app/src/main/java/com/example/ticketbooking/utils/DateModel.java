@@ -1,4 +1,4 @@
-package com.example.ticketbooking.Model;
+package com.example.ticketbooking.utils;
 
 import android.util.Log;
 

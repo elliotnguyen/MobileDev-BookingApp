@@ -3,15 +3,12 @@ package com.example.ticketbooking;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -19,71 +16,93 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.ticketbooking.Calendar.DateUtils;
-import com.example.ticketbooking.Dialog.ProgressHelper;
-import com.example.ticketbooking.Dialog.VerifyPurchaseHelper;
-import com.example.ticketbooking.Dialog.WishlistHelper;
-import com.example.ticketbooking.Model.Cinema;
-import com.example.ticketbooking.Model.DateModel;
-import com.example.ticketbooking.Model.Movie;
-import com.example.ticketbooking.Model.TimeModel;
-import com.example.ticketbooking.Model.User;
-import com.example.ticketbooking.Repository.BookingRepository;
-import com.example.ticketbooking.adapters.CinemaAdapter;
-import com.example.ticketbooking.adapters.DateAdapter;
-import com.example.ticketbooking.adapters.MovieAdapter;
-import com.example.ticketbooking.adapters.RecyclerViewClickInterface;
-import com.example.ticketbooking.adapters.TimeAdapter;
+import com.example.ticketbooking.dialog.ProgressHelper;
+import com.example.ticketbooking.dialog.WishlistHelper;
+import com.example.ticketbooking.utils.DateModel;
+import com.example.ticketbooking.model.Movie;
+import com.example.ticketbooking.repository.BookingRepository;
+import com.example.ticketbooking.fragment.CinemaSelectFragment;
+import com.example.ticketbooking.fragment.ReviewFragment;
+import com.example.ticketbooking.viewmodels.MovieDetailViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import org.checkerframework.common.returnsreceiver.qual.This;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 public class MovieDetailActivity extends AppCompatActivity implements WishlistHelper.HandlerDialogListener {
-    RecyclerView dateRecyclerView;
-    RecyclerView.Adapter dateAdapter;
-    RecyclerView cinemaRecyclerView;
-    RecyclerView.Adapter cinemaAdapter;
-    ArrayList<DateModel> dates;
-    ArrayList<Cinema> cinemas;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference();
     DatabaseReference userPurchaseRef;
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     Movie movie;
-    int dateChosenPosition = -1;
+    MovieDetailViewModel movieDetailViewModel;
+    //CinemaSelectFragment cinemaSelectFragment = new CinemaSelectFragment();
+    //ReviewFragment reviewFragment = new ReviewFragment();
+    String movieId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
 
+        movieId = getIntent().getStringExtra("movieId");
+
+        movieDetailViewModel = new ViewModelProvider(this).get(MovieDetailViewModel.class);
+        movieDetailViewModel.getMovie(movieId);
+        ObserverMovieChange();
+
         BookingRepository.getInstance().resetCurrentPurchase();
-
-        String movieId = getIntent().getStringExtra("movieId");
-
-        getMovieData(movieId);
         BookingRepository.getInstance().setMovieId(movieId);
-
-        handleDateRecylerView();
 
         userPurchaseRef = myRef.child("users").child(mAuth.getCurrentUser().getUid()).child("purchases");
 
         handleBookingForward();
-
         handleBookingBackward();
 
         handleWishList();
+
+        handleSessionShow();
+    }
+
+    private void handleSessionShow() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.activity_movie_detail_frame_layout, new CinemaSelectFragment())
+                .commit();
+        TextView cinemaSelectShow = findViewById(R.id.activity_movie_detail_cinema_selecting);
+        cinemaSelectShow.setTextColor(getResources().getColor(R.color.blue));
+        TextView reviewShow = findViewById(R.id.activity_movie_detail_seat_selecting);
+        reviewShow.setTextColor(getResources().getColor(R.color.black));
+        cinemaSelectShow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cinemaSelectShow.setTextColor(getResources().getColor(R.color.blue));
+                reviewShow.setTextColor(getResources().getColor(R.color.black));
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.activity_movie_detail_frame_layout, new CinemaSelectFragment())
+                        .commit();
+            }
+        });
+
+        reviewShow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cinemaSelectShow.setTextColor(getResources().getColor(R.color.black));
+                reviewShow.setTextColor(getResources().getColor(R.color.blue));
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.activity_movie_detail_frame_layout, new ReviewFragment())
+                        .commit();
+            }
+        });
+    }
+
+    private void ObserverMovieChange() {
+        movieDetailViewModel.getMovie().observe(this, movie -> {
+            if (movie != null) {
+                this.movie = movie;
+                handleCardMovieItem();
+            }
+        });
     }
 
     private void handleWishList() {
@@ -95,153 +114,6 @@ public class MovieDetailActivity extends AppCompatActivity implements WishlistHe
                 wishlistHelper.show(getSupportFragmentManager(), "wishlist");
             }
         });
-    }
-
-    private void getMovieData(String id) {
-        myRef.child("movies").child(id).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-               movie = Movie.fromFirebaseData(snapshot);
-               handleCardMovieItem();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-    private void getCinemaData(String date) {
-        myRef.child("cinema").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                cinemas = new ArrayList<>();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    if (dataSnapshot.hasChild(movie.getId())) {
-                        Cinema cinema = Cinema.fromFirebaseData(dataSnapshot);
-                        if (dataSnapshot.child(movie.getId()).hasChild(date)) {
-                            ArrayList<String> times = new ArrayList<>();
-                            for (DataSnapshot time : dataSnapshot.child(movie.getId()).child(date).getChildren()) {
-                                times.add(time.getKey());
-                            }
-                            cinema.setTime(times);
-                            cinemas.add(cinema);
-                        }
-                    }
-                }
-                if (!cinemas.isEmpty()) {
-                    handleCinemaRecylerView();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-    private void handleCinemaRecylerView() {
-        ArrayList<RecyclerView.Adapter> timeAdapters = new ArrayList<>();
-        for (int i = 0; i < cinemas.size(); i++) {
-            final Cinema cinema = cinemas.get(i);
-            final int idx = i;
-            timeAdapters.add(new TimeAdapter(cinema.getTime(), new RecyclerViewClickInterface() {
-                @Override
-                public void onItemClick(int position) {
-                    TimeAdapter timeAdapter = (TimeAdapter) timeAdapters.get(idx);
-                    TimeModel time = cinema.getTime().get(position);
-                    if (time.isBlocked()) {
-                        return;
-                    }
-
-                    if (BookingRepository.getInstance().getCinemaId().equals(String.valueOf(idx)) && BookingRepository.getInstance().getTime().equals(time.getTime())) {
-                        return;
-                    }
-
-                    if (BookingRepository.getInstance().getCinemaId().equals(String.valueOf(idx))) {
-                        for (int j = 0; j < cinemas.get(idx).getTime().size(); j++) {
-                            if (cinemas.get(idx).getTime().get(j).getTime().equals(BookingRepository.getInstance().getTime())) {
-                                cinemas.get(idx).getTime().get(j).setSelected(false);
-                                timeAdapter.notifyItemChanged(j);
-                                break;
-                            }
-                        }
-                    } else {
-                        if (BookingRepository.getInstance().getCinemaId().isEmpty()) {
-                            BookingRepository.getInstance().setCinemaId(String.valueOf(idx));
-                        } else {
-                            int previousCinemaId = Integer.parseInt(BookingRepository.getInstance().getCinemaId());
-                            for (int j = 0; j < cinemas.get(previousCinemaId).getTime().size(); j++) {
-                                if (cinemas.get(previousCinemaId).getTime().get(j).getTime().equals(BookingRepository.getInstance().getTime())) {
-                                    cinemas.get(previousCinemaId).getTime().get(j).setSelected(false);
-                                    timeAdapters.get(previousCinemaId).notifyItemChanged(j);
-                                    break;
-                                }
-                            }
-                            BookingRepository.getInstance().setCinemaId(String.valueOf(idx));
-                        }
-                    }
-
-                    cinemas.get(idx).getTime().get(position).setSelected(true);
-                    timeAdapter.notifyItemChanged(position);
-
-                    BookingRepository.getInstance().setTime(time.getTime());
-                }
-
-                @Override
-                public void onLongItemClick(int position) {
-                }
-            }));
-        }
-
-        cinemaRecyclerView = findViewById(R.id.cinema_view);
-        cinemaRecyclerView.setLayoutManager(new LinearLayoutManager(MovieDetailActivity.this, LinearLayoutManager.VERTICAL, false));
-        cinemaAdapter = new CinemaAdapter(cinemas, new RecyclerViewClickInterface() {
-            @Override
-            public void onItemClick(int position) {
-            }
-
-            @Override
-            public void onLongItemClick(int position) {
-            }
-        }, MovieDetailActivity.this, timeAdapters);
-        cinemaRecyclerView.setAdapter(cinemaAdapter);
-    }
-
-    private void handleDateRecylerView() {
-        dates = new ArrayList<>();
-        String currentDate = DateUtils.getCurrentDate();
-        for (int i = 0; i < 10; i++) {
-            dates.add(new DateModel(currentDate, false));
-            currentDate = DateUtils.getNextDay(currentDate);
-        }
-
-        dateRecyclerView = findViewById(R.id.calendar_view);
-        dateRecyclerView.setLayoutManager(new LinearLayoutManager(MovieDetailActivity.this, LinearLayoutManager.HORIZONTAL, false));
-        dateAdapter = new DateAdapter(dates, new RecyclerViewClickInterface() {
-            @Override
-            public void onItemClick(int position) {
-                if (dateChosenPosition != -1) {
-                    dates.get(dateChosenPosition).setSelected(false);
-                    dateAdapter.notifyItemChanged(dateChosenPosition);
-                }
-                dates.get(position).setSelected(true);
-                dateAdapter.notifyItemChanged(position);
-                dateChosenPosition = position;
-
-                DateModel date = dates.get(position);
-
-                BookingRepository.getInstance().setDate(date.getDate());
-                getCinemaData(DateModel.getDay(date.getDate()));
-            }
-
-            @Override
-            public void onLongItemClick(int position) {
-            }
-        });
-        dateRecyclerView.setAdapter(dateAdapter);
     }
 
     private void handleCardMovieItem() {
@@ -287,11 +159,10 @@ public class MovieDetailActivity extends AppCompatActivity implements WishlistHe
                     Toast.makeText(MovieDetailActivity.this, "Please choose the cinema and time", Toast.LENGTH_SHORT).show();
                 } else {
                     String cinemaId = BookingRepository.getInstance().getCinemaId();
-                    String purchaseId = movie.getId() + BookingRepository.getInstance().getCinemaId() + DateModel.getDay(BookingRepository.getInstance().getDate()) + BookingRepository.getInstance().getTime();
+                    String purchaseId = movie.getId() + cinemaId + DateModel.getDay(BookingRepository.getInstance().getDate()) + BookingRepository.getInstance().getTime();
                     BookingRepository.getInstance().setStatus("inprogress");
                     BookingRepository.getInstance().setMovieName(movie.getTitle());
-                    //String cinemaId = BookingRepository.getInstance().getCurrentPurchase().getCinemaId();
-                    BookingRepository.getInstance().setCinemaName(cinemas.get(Integer.parseInt(cinemaId)).getName());
+
                     userPurchaseRef.child(purchaseId).setValue(BookingRepository.getInstance().getCurrentPurchase()).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -303,7 +174,7 @@ public class MovieDetailActivity extends AppCompatActivity implements WishlistHe
                                 intent.putExtra("movieBackdrop", movie.getBackdropPath());
                                 intent.putExtra("continuePurchase", true);
                                 startActivity(intent);
-                                //finish();
+
                             } else {
                                 Toast.makeText(MovieDetailActivity.this, "Error in booking", Toast.LENGTH_SHORT).show();
                             }
@@ -319,11 +190,9 @@ public class MovieDetailActivity extends AppCompatActivity implements WishlistHe
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MovieDetailActivity.this, ViewAllActivity.class);
-                startActivity(intent);
+                finish();
             }
         });
-
     }
 
     @Override
@@ -336,6 +205,20 @@ public class MovieDetailActivity extends AppCompatActivity implements WishlistHe
     protected void onStop() {
         super.onStop();
         ProgressHelper.dismissDialog();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        BookingRepository.getInstance().resetCurrentPurchase();
+        BookingRepository.getInstance().setMovieId(movieId);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        BookingRepository.getInstance().resetCurrentPurchase();
+        BookingRepository.getInstance().setMovieId(movieId);
     }
 
     @Override

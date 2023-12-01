@@ -13,7 +13,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.ticketbooking.Model.Movie;
+import com.example.ticketbooking.model.Movie;
 import com.example.ticketbooking.adapters.RecyclerViewClickInterface;
 import com.example.ticketbooking.adapters.WishlistAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;

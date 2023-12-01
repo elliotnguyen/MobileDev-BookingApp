@@ -9,11 +9,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.example.ticketbooking.Model.Purchase;
-import com.example.ticketbooking.Model.Seat;
-import com.example.ticketbooking.Repository.BookingRepository;
+import com.example.ticketbooking.model.Purchase;
+import com.example.ticketbooking.model.Seat;
 import com.example.ticketbooking.adapters.PurchaseHistoryAdapter;
 import com.example.ticketbooking.adapters.RecyclerViewClickInterface;
 import com.google.firebase.auth.FirebaseAuth;

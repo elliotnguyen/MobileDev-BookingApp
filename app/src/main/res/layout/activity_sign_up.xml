@@ -46,7 +46,7 @@
             android:textStyle="bold" />
 
         <EditText
-            android:text="username"
+            android:hint="username"
             android:paddingLeft="20dp"
             android:id="@+id/username_signup_edit"
             android:layout_width="match_parent"

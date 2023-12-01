@@ -12,7 +12,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.icu.util.Output;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -27,17 +26,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.ticketbooking.Model.Cinema;
-import com.example.ticketbooking.Model.TimeModel;
+import com.example.ticketbooking.utils.TimeModel;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.tasks.Task;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
-import com.google.zxing.multi.MultipleBarcodeReader;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.File;
@@ -192,7 +188,7 @@ public class PurchaseResultActivity extends AppCompatActivity {
                 try {
                     addresses = geocoder.getFromLocation(currentLocation.getLatitude(), currentLocation.getLongitude(), 1);
                     String userAddress = addresses.get(0).getAddressLine(0);
-                    showDirection("Địa chỉ của tôi", CinemaAddress);
+                    showDirection("My current location", CinemaAddress);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

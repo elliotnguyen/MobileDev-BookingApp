@@ -1,58 +1,54 @@
 package com.example.ticketbooking;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
-import android.widget.TextView;
 
-import com.example.ticketbooking.Model.Movie;
+import com.example.ticketbooking.model.Movie;
 import com.example.ticketbooking.adapters.MovieAdapter;
 import com.example.ticketbooking.adapters.RecyclerViewClickInterface;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
+import com.example.ticketbooking.fragment.UserNavbarFragment;
+import com.example.ticketbooking.viewmodels.ViewAllViewModel;
 
 import java.util.ArrayList;
 
 public class ViewAllActivity extends AppCompatActivity {
     RecyclerView viewAllMovieRecyclerView;
-    //RecyclerView.Adapter movieAdapter;
     MovieAdapter movieAdapter;
     ArrayList<Movie> movies;
-    FirebaseDatabase database = FirebaseDatabase.getInstance();
-    DatabaseReference myRef = database.getReference();
-    FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    ImageView profileImage;
+    ViewAllViewModel viewAllViewModel;
+    UserNavbarFragment userNavbarFragment = new UserNavbarFragment();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_all);
 
-        DatabaseReference userRef = myRef.child("users").child(mAuth.getCurrentUser().getUid());
-        handleUserNavabr();
+        viewAllViewModel = new ViewModelProvider(this).get(ViewAllViewModel.class);
+        viewAllViewModel.getAllMovies();
+        ObserverAnyChange();
 
-        getMovieData();
-        getUserData(userRef);
+        getSupportFragmentManager().beginTransaction().replace(R.id.view_all_user_navbar_fragment, userNavbarFragment).commit();
 
         handleSearchBar();
         handleFilterGenre();
+    }
+
+    private void ObserverAnyChange() {
+        viewAllViewModel.getMovies().observe(this, movies -> {
+            this.movies = movies;
+            handleMovieViewAllRecyclerView();
+        });
     }
 
     private void handleFilterGenre() {
@@ -69,7 +65,7 @@ public class ViewAllActivity extends AppCompatActivity {
 
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
-                    public boolean onMenuItemClick(MenuItem item) { // when user press search button
+                    public boolean onMenuItemClick(MenuItem item) {
                         if (item.getItemId() == R.id.genre_action) {
                             movieAdapter.setMovies(movies);
                             movieAdapter.getFilter().filter("filter Action");
@@ -101,38 +97,6 @@ public class ViewAllActivity extends AppCompatActivity {
         });
     }
 
-    private void handleUserNavabr() {
-        profileImage = findViewById(R.id.navbar_profile_view_all);
-        profileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showSubMenu(view);
-            }
-
-            private void showSubMenu(View view) {
-                PopupMenu popupMenu = new PopupMenu(ViewAllActivity.this, view);
-                popupMenu.getMenuInflater().inflate(R.menu.menu_user, popupMenu.getMenu());
-
-                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        if (item.getItemId() == R.id.action_purchase) {
-                            Intent intent = new Intent(ViewAllActivity.this, PurchaseHistoryActivity.class);
-                            startActivity(intent);
-                        } else if (item.getItemId() == R.id.action_wishlist) {
-                            Intent intent = new Intent(ViewAllActivity.this, WishlistActivity.class);
-                            startActivity(intent);
-                        }
-                        return true;
-                    }
-                });
-
-                popupMenu.setGravity(Gravity.END);
-                popupMenu.show();
-            }
-        });
-    }
-
     private void handleSearchBar() {
         SearchView searchView = findViewById(R.id.search_view_all);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -147,40 +111,6 @@ public class ViewAllActivity extends AppCompatActivity {
                     movieAdapter.setMovies(movies);
                 }
                 return true;
-            }
-        });
-    }
-
-
-    private void getUserData(DatabaseReference userRef) {
-        userRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Picasso.get().load(snapshot.child("profilePic").getValue().toString()).into(profileImage);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-    private void getMovieData() {
-        myRef.child("movies").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                movies = new ArrayList<>();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    movies.add(Movie.fromFirebaseData(dataSnapshot));
-                }
-                Log.v("TAG", movies.size() + "");
-                handleMovieViewAllRecyclerView();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
     }

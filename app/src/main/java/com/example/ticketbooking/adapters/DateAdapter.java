@@ -5,20 +5,15 @@ import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.ticketbooking.Model.DateModel;
+import com.example.ticketbooking.utils.DateModel;
 import com.example.ticketbooking.R;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
     ArrayList<DateModel> dates;
@@ -46,6 +41,7 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
 
         if (parts.length >= 2) {
             holder.day.setText(parts[0]);
+
             holder.date.setText(parts[1]);
         }
 
@@ -56,6 +52,8 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
             holder.date.setTypeface(holder.date.getTypeface(), Typeface.BOLD);
             holder.date.setTextColor(context.getResources().getColor(R.color.blue));
         } else {
+            holder.day.setTypeface(holder.day.getTypeface(), Typeface.NORMAL);
+            holder.date.setTypeface(holder.date.getTypeface(), Typeface.NORMAL);
             holder.day.setTextColor(context.getResources().getColor(R.color.black));
             holder.date.setTextColor(context.getResources().getColor(R.color.black));
         }

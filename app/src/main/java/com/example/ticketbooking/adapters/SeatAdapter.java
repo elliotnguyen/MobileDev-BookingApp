@@ -4,13 +4,12 @@ import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.ticketbooking.Model.Seat;
+import com.example.ticketbooking.model.Seat;
 import com.example.ticketbooking.R;
 
 import java.util.ArrayList;
